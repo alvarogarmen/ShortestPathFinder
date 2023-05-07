@@ -17,6 +17,7 @@ public:
     std::pair<double, double> getMin();                //Return the value of the node with the smallest priority
     double popMin();                //DeleteMin operation
     void decreaseKey(double node, double value);
+    bool contains(double node);
 
     int size(){return heap.size();}
     bool isEmpty(){return heap.empty();}
@@ -65,7 +66,6 @@ void APQ::shiftUp(int i) {
     }
 }
 
-
 double APQ::popMin() {
     double min_value = heap.front().second;
     index.erase(min_value);
@@ -101,4 +101,12 @@ void APQ::decreaseKey(double node, double value) {
     shiftUp(i);
 }
 
+bool APQ::contains(double node) {
+    for (auto & i : heap){
+        if(i.first==node){
+            return true;
+        }
+    }
+    return false;
+}
 #endif

@@ -55,9 +55,9 @@ int main(int argc, char* argv[]) {
         targetNode = targetArg->dval[0];
     }
 
-    //if (graphArg->count > 0) {
-    //    graph = graphArg->sval[0];
-    //}
+    if (graphArg->count > 0) {
+        graph = graphArg->sval[0];
+    }
     std::cout<<graph;
     processInput(sourceNode, targetNode, graph);
 

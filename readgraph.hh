@@ -27,7 +27,7 @@ Graph readCoordFile(std::string Coordfilename){
         // store x and y for the node and push it to the graph
         Node myNode(coordx, coordy, nodeId);
         myGraph.insertNode(myNode);
-        std::cout << "Node 1: " << node << "\n";
+        std::cout << "Node " << nodeId <<":" << "\n";
         std::cout << "X Coordinate: " << coordx << "\n";
         std::cout << "Y Coordinate: " << coordy << "\n";
         std::cout << "Z Coordinate: " << coordz << "\n";
@@ -67,13 +67,15 @@ void readOtherFile(std::string filename, Graph& myGraph) {
         //set the value for the node to be able to find its edges
         if(count==1) {
             if(helper.size()!=0) {
-                myGraph.getNode(index).setStart(helper.size() - 1);
-
+                myGraph.getNode(index-1).setStart(helper.size() - 1);
+                myGraph.edgeStarts.push_back(helper.size()-1);
             }
+
             index++;
         }
 
     }
+
 }
 
 

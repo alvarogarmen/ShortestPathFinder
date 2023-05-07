@@ -13,8 +13,10 @@ public:
     Graph();
     void insertNode(Node node);
     void insertEdge(double node);
+    void buildEdgeStarts();
     std::vector<Node> nodes;
     std::vector<double> edges;
+    std::vector<double> edgeStarts;
     double nodeCount;
     double edgeCount;
     Node& getNode(double nodeId);
@@ -31,6 +33,11 @@ void Graph::insertEdge(double edge) {
 
 Node& Graph::getNode(double nodeId) {
     return this->nodes.at(nodeId);
+}
+void Graph::buildEdgeStarts() {
+    for (Node node:this->nodes){
+        this->edgeStarts.push_back(node.start);
+    }
 }
 
 #endif
