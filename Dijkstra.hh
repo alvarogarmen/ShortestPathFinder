@@ -11,40 +11,37 @@
 #include <cmath>
 #include <set>
 
-//TODO: implement distance measurement
-double distance(Node source, Node target) {
+double distance(Node source, Node target) {                             //Calculate Euclidian distance
     return sqrt(std::pow(source.coordinateX - target.coordinateX, 2)
           + pow(source.coordinateY - target.coordinateY, 2));
 }
 double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
-
-    for (int i :myGraph.edgeStarts){
-        std::cout<<i<<std::endl;
-    }
-
+    //Get a priority queue
     APQ apq = APQ();
-    std::set<int> visited;
-    //Initialize the distances to infinity
 
+    //Keep this to know if we have visited a node or not
+    std::set<int> visited;
+
+    //Initialize the distances to infinity
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
 
     //Push the source node with distance 0 into the APQ
     apq.insertNode(sourceNode, 0);
-    std::cout<<sourceNode<<std::endl;
     dist.at(sourceNode-1)=0;
+
     //Main loop
     while(!apq.isEmpty()){
-        std::cout<<"Loop"<<std::endl;
-        int currentNode = apq.getMin().first;
+        std::cout<<"Main Loop"<<std::endl;
+        //Active node. Note that if its already in the set, inserting doesn't do anything
+        int currentNode = apq.getMin().first;       //The getter doesn't pop the minimum element
         visited.insert(currentNode);
-        apq.popMin();
+        apq.popMin();                               //It is popped here
 
-        int startEdge = (currentNode-1 > 0) ? myGraph.edgeStarts[currentNode-2] : 0;
-        int endEdge = myGraph.edgeStarts[currentNode];
-        for (int edgeIndex = startEdge; edgeIndex < endEdge; edgeIndex++) {
-            std::cout<<"EdgeIndex: "<<edgeIndex<<std::endl;
+        int startEdge = (currentNode-1 > 0) ? myGraph.edgeStarts[currentNode-2] : 0;    //Ternary operation: if we start with the node 0, we'll start with
+        int endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
+        //Look for edges to relax
+        for (int edgeIndex = startEdge; edgeIndex < endEdge; edgeIndex++) {             //This selects only the relevant edges
             int edge = myGraph.edges[edgeIndex];
-            std::cout<<"Current edge "<< edge<<std::endl;
             // Calculate the weight as the Euclidean distance between the nodes
             std::cout<<"With current Node: "<< currentNode-1<<" and destination Node: "<< edge-1<< ".Weight: ";
             double weight = distance(myGraph.nodes[currentNode-1], myGraph.nodes[edge-1]);
@@ -52,21 +49,21 @@ double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
             // Relax the edge if a shorter path is found
             if (dist[currentNode-1] + weight < dist[edge-1]) {
                 dist[edge-1] = dist[currentNode-1] + weight;
-                for(auto g:dist){
-                    std::cout<<g<<", ";
-                }
-                //std::cout<<"Relaxation"<<std::endl;
+                //Decrease key operation if the node is already in APQ
                 if(apq.contains(edge-1)) {
                     apq.decreaseKey(edge-1, dist[edge-1]);
                     std::cout << "Key decreased" << std::endl;
                 }
+                //Otherwise, insert it into the APQ
                 else{apq.insertNode(edge-1, dist[edge-1]);}
-                std::cout<<edge-1<<"son iguales?"<<targetNode-1<<std::endl;
+
+                //Break if we have reached our destination
                 if (edge == targetNode){
                     std::cout<<"edgeIndex==targetNode arrived"<<std::endl;
                     return dist[edge-1];
                 }
             }
+            //In case we don't relax and the element is not in the APQ already, put it in
             if (visited.find(edge-1) == visited.end()){
                 std::cout<<"Insertion in the apq"<<std::endl;
                 apq.insertNode(edge-1, dist[edge-1]);
@@ -74,34 +71,10 @@ double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
         }
     }
     std::cout<<"All edges relaxed"<<std::endl;
-    for (auto i:dist){
-        std::cout<<i<<std::endl;
+    if (dist[targetNode-1]==INT_MAX){
+        return -1;                      //To symbolize that it is not reached
     }
-    return dist[targetNode-1];
+    return dist[targetNode-1];          //I think it works, but I haven't tested it yet
 }
 
 #endif
-
-/*for (int i = 0; i < size; i++){
-            for (int j = myGraph.nodes.at(i).start; j<myGraph.edges.size(); j++){
-                if(dist.at(u)+ distance(myGraph.nodes.at(u), myGraph.nodes.at(i))<dist.at(i)) {
-                    dist.at(i) = dist.at(u) + distance(myGraph.nodes.at(u), myGraph.nodes.at(i));
-                    apq.insertNode(i, dist.at(i));
-                    if (myGraph.nodes.at(i).nodeId==targetNode-1){
-
-
-                        //break;
-                    }std::cout<<"Line 51"<<std::endl;
-                }std::cout<<"Line 52"<<std::endl;
-
-            }std::cout<<"Line 54"<<std::endl;
-        }
-
-
-    }
-    std::cout<<targetNode<< "line 58" <<std::endl;
-    //std::cout<<"Node "<<targetNode<< " Distance from Source:"<<dist.at(targetNode-1)<<std::endl;
-    //std::cout<<"Distance check"<<distance(myGraph.getNode(1), myGraph.getNode(2))<<std::endl;
-
-    return dist.at(targetNode-1);
-*/

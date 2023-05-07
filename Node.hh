@@ -9,9 +9,11 @@
 
 class Node{
 public:
-    Node(){
+    Node(){                             //A bunch of different constructors, needed at different points of reading the graph
         this->coordinateX=-1;
         this->coordinateY=-1;
+        this->start = -1;
+        this->nodeId = -1;
     };
     Node(double degree, double coordinateX, double coordinateY, double nodeId) {
         this->start = degree;
@@ -22,6 +24,8 @@ public:
     Node(double CoordinateX, double CoordinateY){
         this->coordinateX=CoordinateX;
         this->coordinateY=CoordinateY;
+        this->start = -1;
+        this->nodeId = -1;
     }
     Node(double CoordinateX, double CoordinateY, double NodeId){
         this->coordinateX = CoordinateX;
@@ -29,17 +33,11 @@ public:
         this->nodeId = NodeId;
         this->start = 0;
     }
-    double getStart() {
-        return this->start;
-    }
     void setStart(double newStart) {
         this->start=newStart;
     }
-    std::vector<double> getCoordinates() {
-        return std::vector<double> {this->coordinateX, this->coordinateY};
-    }
     double coordinateX, coordinateY, nodeId;
-    double start;
+    double start;                                   //Start is the outdegree of the node
 
 };
 

@@ -14,27 +14,24 @@
 
 
 Graph readCoordFile(std::string Coordfilename){
-    int nodeId = 0;
-    Graph myGraph;
+    int nodeId = 0;                                 //To keep track of the input nodes
+    Graph myGraph;                                  //This will be the graph we'll be working with
     std::ifstream infile(Coordfilename+".xyz"); // open the input file
     std::string line;
     while (std::getline(infile, line)) { // read the file line by line
         std::istringstream iss(line);
 
-        double node, coordx, coordy, coordz;
+        double coordx, coordy, coordz;
 
         iss >> coordx >> coordy >> coordz; // extract coordinates from line
         // store x and y for the node and push it to the graph
         Node myNode(coordx, coordy, nodeId);
         myGraph.insertNode(myNode);
-        std::cout << "Node " << nodeId <<":" << "\n";
+    /*  std::cout << "Node " << nodeId <<":" << "\n";            Leaving this here for debugging purposes
         std::cout << "X Coordinate: " << coordx << "\n";
         std::cout << "Y Coordinate: " << coordy << "\n";
-        std::cout << "Z Coordinate: " << coordz << "\n";
+        std::cout << "Z Coordinate: " << coordz << "\n"; */
         nodeId++;
-    }
-    for (int i=0; i<myGraph.nodes.size();i++){
-        std::cout << myGraph.getNode(i).nodeId<<", ";
     }
     return myGraph;
 

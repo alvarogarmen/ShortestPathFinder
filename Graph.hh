@@ -13,13 +13,12 @@ public:
     Graph();
     void insertNode(Node node);
     void insertEdge(double node);
-    void buildEdgeStarts();
-    std::vector<Node> nodes;
-    std::vector<double> edges;
-    std::vector<double> edgeStarts;
-    double nodeCount;
-    double edgeCount;
-    Node& getNode(double nodeId);
+    std::vector<Node> nodes;            //Vector with all the Node objects
+    std::vector<double> edges;          //Vector with all the Edge destinations
+    std::vector<double> edgeStarts;     //Vector with all the outdegrees of the Nodes
+    double nodeCount;                   //I don't actually use this
+    double edgeCount;                   //Nor this. nodes.size() does the trick
+    Node& getNode(double nodeId);       //Getter by reference. Useful when reading the files
 };
 Graph::Graph() {}
 
@@ -33,11 +32,6 @@ void Graph::insertEdge(double edge) {
 
 Node& Graph::getNode(double nodeId) {
     return this->nodes.at(nodeId);
-}
-void Graph::buildEdgeStarts() {
-    for (Node node:this->nodes){
-        this->edgeStarts.push_back(node.start);
-    }
 }
 
 #endif

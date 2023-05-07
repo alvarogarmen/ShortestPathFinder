@@ -11,21 +11,21 @@
 class APQ{
 public:
 
-    void insertNode(double node, double priority);   //Insert a node
-    void shiftDown(int i);          //Shift down operation
-    void shiftUp(int i);            //Shift up operation
-    std::pair<double, double> getMin();                //Return the value of the node with the smallest priority
-    double popMin();                //DeleteMin operation
-    void decreaseKey(double node, double value);
-    bool contains(double node);
+    void insertNode(double node, double priority);      //Insert a node
+    void shiftDown(int i);                              //Shift down operation
+    void shiftUp(int i);                                //Shift up operation
+    std::pair<double, double> getMin();                 //Return the value of the node with the smallest priority
+    double popMin();                                    //DeleteMin operation
+    void decreaseKey(double node, double value);        //Normal decreaseKey operation
+    bool contains(double node);                         //Check if element already in it
 
     int size(){return heap.size();}
     bool isEmpty(){return heap.empty();}
 
 private:
-    //Vector with the node and their priority, aka our priority queue
+    // Vector with the node and their priority, aka our priority queue. Left is nodeId and right is the priority
     std::vector<std::pair<double, double>> heap;
-    // A hash table that maps values to their indices in the heap
+    // A hash table that maps values to their indices in the heap. Only important here
     std::unordered_map<double, int> index;
 };
 void APQ::insertNode(double node, double priority){
