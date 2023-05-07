@@ -1,0 +1,3 @@
+C:/Users/alvar/CLionProjects/praktikum/cmake-build-debug/CMakeFiles/praktikum.dir
+C:/Users/alvar/CLionProjects/praktikum/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/alvar/CLionProjects/praktikum/cmake-build-debug/CMakeFiles/rebuild_cache.dir
