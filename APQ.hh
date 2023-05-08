@@ -102,11 +102,10 @@ void APQ::decreaseKey(double node, double value) {
 }
 
 bool APQ::contains(double node) {
-    for (auto & i : heap){
-        if(i.first==node){
-            return true;
-        }
+    if(index.empty()){return false;}
+    if (index.find(node) == index.end()){
+        return false;
     }
-    return false;
+    return true;
 }
 #endif

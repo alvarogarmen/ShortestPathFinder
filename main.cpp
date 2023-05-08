@@ -4,7 +4,7 @@
 
 #include <string>
 #include "argtable3.h"
-
+#include <chrono>
 #include "readgraph.hh"
 #include "Dijkstra.hh"
 #include <iostream>
@@ -21,10 +21,15 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
     std::cout<<"Reading successful"<<std::endl;
     readOtherFile(graph, myGraph);
     std::cout<<"Reading successful"<<std::endl;
-    // Call Dijkstra
+    // Call Dijkstra and start timer
+    auto start = std::chrono::high_resolution_clock::now();
     double Dis = Dijkstra(myGraph, sourceNode, targetNode);
-    // Give out the distance
-    std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis;
+    //Stop the clock
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time = end - start;
+    // Give out the distance and the time
+    std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
+    std::cout<<"It took: "<<time.count()<<"s";
 }
 
 int main(int argc, char* argv[]) {
