@@ -12,8 +12,8 @@
 #include <set>
 
 double distance(Node source, Node target) {                             //Calculate Euclidian distance
-    return sqrt(std::pow(source.coordinateX - target.coordinateX, 2)
-          + pow(source.coordinateY - target.coordinateY, 2));
+    return sqrt(std::pow(static_cast<double>(source.coordinateX - target.coordinateX), 2.0)
+                + std::pow(static_cast<double>(source.coordinateY - target.coordinateY), 2.0));
 }
 double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
     //Get a priority queue
@@ -21,7 +21,7 @@ double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
 
 
     //Keep this to know if we have visited a node or not
-    std::set<int> visited;
+    std::set<double> visited;
 
     //Initialize the distances to infinity
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -30,23 +30,30 @@ double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
     apq.insertNode(sourceNode-1, 0);
     dist[sourceNode-1]=0;
     std::cout<<"sourceNode: "<< sourceNode<<std::endl;
-    std::cout<<"Distance of Source Node: "<<dist[sourceNode]<<std::endl;
+    std::cout<<"Distance of Source Node: "<<dist[sourceNode-1]<<std::endl;
     //Main loop
     while(!apq.isEmpty()){
         std::cout<<"-----------------------------"<<std::endl;
+
         //Active node. Note that if its already in the set, inserting doesn't do anything
-        int currentNode = apq.getMin().first;       //The getter doesn't pop the minimum element
+        double currentNode = apq.getMin().first;       //The getter doesn't pop the minimum element
+        for(auto i:apq.index){
+            std::cout<<"Members in the apq: "<<i.first<<" "<<i.second<<std::endl;
+        }
+        for(auto i:apq.heap){
+            std::cout<<"Members in the apq heap: "<<i.first<<" "<<i.second<<std::endl;
+        }
         std::cout<<"Current Node: "<<currentNode<<std::endl;
         visited.insert(currentNode);
         apq.popMin();                               //It is popped here
 
-        int startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we start with the node 0, we'll start with
-        int endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we start with the node 0, we'll start with
+        double endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
         std::cout<<"Start Edge: "<<startEdge<<std::endl;
         std::cout<<"End Edge: "<< endEdge<<std::endl;
         //Look for edges to relax
-        for (int edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {             //This selects only the relevant edges
-            int edge = myGraph.edges[edgeIndex]-1;
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {             //This selects only the relevant edges
+            double edge = myGraph.edges[edgeIndex]-1;
             std::cout<<"Edge: "<<edge<<std::endl;
             // Calculate the weight as the Euclidean distance between the nodes
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);

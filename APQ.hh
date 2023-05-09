@@ -22,7 +22,7 @@ public:
     int size(){return heap.size();}
     bool isEmpty(){return heap.empty();}
 
-private:
+
     // Vector with the node and their priority, aka our priority queue. Left is nodeId and right is the priority
     std::vector<std::pair<double, double>> heap;
     // A hash table that maps values to their indices in the heap. Only important here
@@ -102,7 +102,6 @@ void APQ::decreaseKey(double node, double value) {
 }
 
 bool APQ::contains(double node) {
-    if(index.empty()){return false;}
     if (index.find(node) == index.end()){
         return false;
     }
