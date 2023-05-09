@@ -29,55 +29,33 @@ double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
     //Push the source node with distance 0 into the APQ
     apq.insertNode(sourceNode-1, 0);
     dist[sourceNode-1]=0;
-    std::cout<<"sourceNode: "<< sourceNode<<std::endl;
-    std::cout<<"Distance of Source Node: "<<dist[sourceNode-1]<<std::endl;
     //Main loop
     while(!apq.isEmpty()){
-        std::cout<<"-----------------------------"<<std::endl;
-
         //Active node. Note that if its already in the set, inserting doesn't do anything
         double currentNode = apq.getMin().first;       //The getter doesn't pop the minimum element
-        for(auto i:apq.index){
-            std::cout<<"Members in the apq: "<<i.first<<" "<<i.second<<std::endl;
-        }
-        for(auto i:apq.heap){
-            std::cout<<"Members in the apq heap: "<<i.first<<" "<<i.second<<std::endl;
-        }
-        std::cout<<"Current Node: "<<currentNode<<std::endl;
         visited.insert(currentNode);
         apq.popMin();                               //It is popped here
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we start with the node 0, we'll start with
         double endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
-        std::cout<<"Start Edge: "<<startEdge<<std::endl;
-        std::cout<<"End Edge: "<< endEdge<<std::endl;
         //Look for edges to relax
         for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {             //This selects only the relevant edges
             double edge = myGraph.edges[edgeIndex]-1;
-            std::cout<<"Edge: "<<edge<<std::endl;
             // Calculate the weight as the Euclidean distance between the nodes
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
-            std::cout<<"Weight: "<<weight<<std::endl;
-            std::cout<<"Distance to Current Node "<<currentNode<<" : "<<dist[currentNode]<<std::endl;
-            std::cout<<"Distance to Node "<<edge<<": "<< dist[edge]<<std::endl;
             // Relax the edge if a shorter path is found
             if (dist[currentNode] + weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
                 //Break if we have reached our destination
                 if (edge == targetNode-1){
-                    for(int i=0; i<20; i++){
-                        std::cout<<"Dist for index "<<i<<" : "<<dist[i]<<std::endl;
-                    }
                     return dist[edge];
                 }
                 //Decrease key operation if the node is already in APQ
                 if(apq.contains(edge)) {
                     apq.decreaseKey(edge, dist[edge]);
-                    std::cout<<"Key of Node "<<edge<<" was decreased to: "<<dist[edge]<<std::endl;
                 }
                 //Otherwise, insert it into the APQ
-                else{apq.insertNode(edge, dist[edge]);
-                std::cout<<"Node inserted: "<<edge<<" with weight "<<dist[edge]<<std::endl;}
+                else{apq.insertNode(edge, dist[edge]);}
 
 
             }
