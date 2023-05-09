@@ -29,22 +29,24 @@ public:
     std::unordered_map<double, int> index;
 };
 void APQ::insertNode(double node, double priority){
-    this->heap.emplace_back(node, priority);
-    shiftUp(size()-1);
+    heap.emplace_back(node, priority);
+    index[node] = heap.size() - 1;
+    shiftUp(heap.size() - 1);
 }
 
 void APQ::shiftDown(int i) {
-    while (2 * i + 1 < size()) {
+    int size = heap.size();
+    while (2 * i + 1 < size) {
         int left = 2 * i + 1;
         int right = 2 * i + 2;
         int smallest = left;
-        if (right < size() && heap[right].first < heap[left].first) {
+        if (right < size && heap[right].second < heap[left].second) {
             smallest = right;
         }
-        if (heap[i].first > heap[smallest].first) {
+        if (heap[i].second > heap[smallest].second) {
             std::swap(heap[i], heap[smallest]);
-            index[heap[i].second] = i;
-            index[heap[smallest].second] = smallest;
+            index[heap[i].first] = i;
+            index[heap[smallest].first] = smallest;
             i = smallest;
         } else {
             break;
@@ -54,12 +56,12 @@ void APQ::shiftDown(int i) {
 
 void APQ::shiftUp(int i) {
     while (i > 0) {
-        int p = (i - 1) / 2;
-        if (heap[p].first > heap[i].first) {
-            std::swap(heap[p], heap[i]);
-            index[heap[p].second] = p;
-            index[heap[i].second] = i;
-            i = p;
+        int parent = (i - 1) / 2;
+        if (heap[i].second < heap[parent].second) {
+            std::swap(heap[i], heap[parent]);
+            index[heap[i].first] = i;
+            index[heap[parent].first] = parent;
+            i = parent;
         } else {
             break;
         }
@@ -67,26 +69,27 @@ void APQ::shiftUp(int i) {
 }
 
 double APQ::popMin() {
-    double min_value = heap.front().second;
-    index.erase(min_value);
-    if(heap.size() > 1){
-        heap.front() = std::move(heap.back());
-        index[heap.front().second] = 0;
+    if (isEmpty()) {
+        throw std::out_of_range("Priority queue is empty.");
+    }
+    double minValue = heap[0].first;
+    index.erase(minValue);
+    if (heap.size() > 1) {
+        heap[0] = std::move(heap.back());
+        index[heap[0].first] = 0;
         heap.pop_back();
         shiftDown(0);
-    }
-    else{
+    } else {
         heap.pop_back();
     }
-    return min_value;
+    return minValue;
 }
 
 std::pair<double, double> APQ::getMin() {
-    if (heap.empty()){
-        std::cout<<"Heap is empty"<<std::endl;
-        return {0,0};
+    if (isEmpty()) {
+        throw std::out_of_range("Priority queue is empty.");
     }
-    return heap.front();
+    return heap[0];
 }
 
 void APQ::decreaseKey(double node, double value) {
@@ -94,17 +97,14 @@ void APQ::decreaseKey(double node, double value) {
         throw std::invalid_argument("Value not in priority queue.");
     }
     int i = index[node];
-    if (value > heap[i].first) {
+    if (value > heap[i].second) {
         throw std::invalid_argument("New priority must be less than or equal to current priority.");
     }
-    heap[i].first = value;
+    heap[i].second = value;
     shiftUp(i);
 }
 
 bool APQ::contains(double node) {
-    if (index.find(node) == index.end()){
-        return false;
-    }
-    return true;
+    return index.find(node) != index.end();
 }
 #endif
