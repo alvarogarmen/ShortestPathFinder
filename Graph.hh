@@ -19,6 +19,7 @@ public:
     double nodeCount;                   //I don't actually use this
     double edgeCount;                   //Nor this. nodes.size() does the trick
     Node& getNode(double nodeId);       //Getter by reference. Useful when reading the files
+    std::vector<Node> getNodes();
 };
 Graph::Graph() {}
 
@@ -32,6 +33,9 @@ void Graph::insertEdge(double edge) {
 
 Node& Graph::getNode(double nodeId) {
     return this->nodes.at(nodeId);
+}
+std::vector<Node> Graph::getNodes() {
+    return this->nodes;
 }
 
 #endif

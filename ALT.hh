@@ -1,8 +1,8 @@
-// Created by alvar on 29/05/2023.
+// Created by alvaro on 29/05/2023.
 //
 
-#ifndef UNTITLED_ASTAR_HH
-#define UNTITLED_ASTAR_HH
+#ifndef UNTITLED_ALT_HH
+#define UNTITLED_ALT_HH
 
 #include "Graph.hh"
 #include <climits>
@@ -10,8 +10,16 @@
 #include "Dijkstra.hh"
 #include <cmath>
 #include <set>
+#include <unordered_map>
+#include <algorithm>
 
-double AStar(Graph myGraph, double sourceNode, double targetNode) {
+
+
+double estimate(Node source, Node target, double landmarkDist, double landmarkDistTarget) {
+    return landmarkDist + distance(source, target) - landmarkDistTarget;
+}
+
+double ALT(Graph myGraph, double sourceNode, double targetNode, std::unordered_map<int, double> landmarkDistances) {
     APQ apq = APQ();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -38,7 +46,8 @@ double AStar(Graph myGraph, double sourceNode, double targetNode) {
                     return dist[edge];
                 }
 
-                double h = distance(myGraph.nodes[edge], myGraph.nodes[targetNode - 1]);
+                double h = estimate(myGraph.nodes[edge], myGraph.nodes[targetNode - 1],
+                                    landmarkDistances[edge], landmarkDistances[targetNode - 1]);
                 double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {

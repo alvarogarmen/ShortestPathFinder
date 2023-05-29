@@ -7,6 +7,9 @@
 #include <chrono>
 #include "readgraph.hh"
 #include "Dijkstra.hh"
+#include "AStar.hh"
+#include "ALT-Landmarks.hh"
+#include "ALT.hh"
 #include <iostream>
 
 
@@ -29,7 +32,59 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
     std::chrono::duration<double> time = end - start;
     // Give out the distance and the time
     std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
-    std::cout<<"It took: "<<time.count()<<"s";
+    std::cout<<"Dijkstra took: "<<time.count()<<"s"<<std::endl;
+    //A*
+    start = std::chrono::high_resolution_clock::now();
+    Dis = AStar(myGraph, sourceNode, targetNode);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the distance and the time
+    std::cout<<"A* from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
+    std::cout<<"A* took: "<<time.count()<<"s"<<std::endl;
+
+    //ALT with random Landmarks Preprocessing
+    start = std::chrono::high_resolution_clock::now();
+    std::unordered_map<int, double> landmarkDistancesRandom = computeLandmarkDistancesRandom(myGraph, 8);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the time
+    std::cout<<"ALT Random preprocessing took:"<<time.count()<<"s"<<std::endl;
+
+    //ALT query with random Landmarks
+    start = std::chrono::high_resolution_clock::now();
+    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistancesRandom);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the distance and the time
+    std::cout<<"ALT Random from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
+    std::cout<<"ALT Random query took: "<<time.count()<<std::endl;
+
+    //ALT with furthest Landmarks Preprocessing
+    start = std::chrono::high_resolution_clock::now();
+    std::vector<int> landmarkDistancesFurthest = computeFurthestLandmarks(myGraph, 8);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the time
+    std::cout<<"ALT Furthest preprocessing took:"<<time.count()<<"s"<<std::endl;
+
+    //ALT query with random Landmarks
+    start = std::chrono::high_resolution_clock::now();
+    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistancesFurthest);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the distance and the time
+    std::cout<<"ALT Random from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
+    std::cout<<"ALT Random query took: "<<time.count()<<std::endl;
+
+
+
+
+
 }
 
 int main(int argc, char* argv[]) {
