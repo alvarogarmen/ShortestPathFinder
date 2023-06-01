@@ -10,6 +10,7 @@
 #include "AStar.hh"
 #include "ALT-Landmarks.hh"
 #include "ALT.hh"
+#include "Dijkstra_Saving.hh"
 #include <iostream>
 
 
@@ -71,15 +72,6 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
     // Give out the time
     std::cout<<"ALT Furthest preprocessing took:"<<time.count()<<"s"<<std::endl;
 
-    //ALT query with random Landmarks
-    start = std::chrono::high_resolution_clock::now();
-    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistancesFurthest);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the distance and the time
-    std::cout<<"ALT Random from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
-    std::cout<<"ALT Random query took: "<<time.count()<<std::endl;
 
 
 
@@ -87,6 +79,27 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
 
 }
 
+void processInputForPlot(double sourceNode, double targetNode, std::string graph){
+    // Give out the input
+    std::cout << "Source Node: " << sourceNode << std::endl;
+    std::cout << "Target Node: " << targetNode << std::endl;
+    std::cout<<graph<<std::endl;
+    std::cout << "Graph1: " << graph << std::endl;
+    // Call the read-functions
+    Graph myGraph = readCoordFile(graph);
+    std::cout<<"Reading successful"<<std::endl;
+    readOtherFile(graph, myGraph);
+    std::cout<<"Reading successful"<<std::endl;
+    // Call Dijkstra and start timer
+    auto start = std::chrono::high_resolution_clock::now();
+    double Dis = DijkstraSaving(myGraph, sourceNode, targetNode);
+    //Stop the clock
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> time = end - start;
+    // Give out the distance and the time
+    std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
+    std::cout<<"Dijkstra took: "<<time.count()<<"s"<<std::endl;
+}
 int main(int argc, char* argv[]) {
     //Argtable 3
     double sourceNode;
@@ -122,7 +135,7 @@ int main(int argc, char* argv[]) {
         graph = graphArg->sval[0];
     }
     // Call out functions
-    processInput(sourceNode, targetNode, graph);
+    processInputForPlot(sourceNode, targetNode, graph);
 
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 
