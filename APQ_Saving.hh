@@ -5,7 +5,7 @@
 #include <unordered_map>
 #include <iostream>
 
-class APQ {
+class APQSaving {
 public:
     void insertNode(double node, double priority);
     void shiftDown(int i);
@@ -24,14 +24,14 @@ public:
     std::unordered_map<double, double> prev;  // New map to store the previous node
 };
 
-void APQ::insertNode(double node, double priority) {
+void APQSaving::insertNode(double node, double priority) {
     heap.emplace_back(node, priority);
     index[node] = heap.size() - 1;
     shiftUp(heap.size() - 1);
     prev[node] = -1;  // Initialize the prev value to -1
 }
 
-void APQ::shiftDown(int i) {
+void APQSaving::shiftDown(int i) {
     int size = heap.size();
     while (2 * i + 1 < size) {
         int left = 2 * i + 1;
@@ -51,7 +51,7 @@ void APQ::shiftDown(int i) {
     }
 }
 
-void APQ::shiftUp(int i) {
+void APQSaving::shiftUp(int i) {
     while (i > 0) {
         int parent = (i - 1) / 2;
         if (heap[i].second < heap[parent].second) {
@@ -65,7 +65,7 @@ void APQ::shiftUp(int i) {
     }
 }
 
-double APQ::popMin() {
+double APQSaving::popMin() {
     if (isEmpty()) {
         throw std::out_of_range("Priority queue is empty.");
     }
@@ -82,14 +82,14 @@ double APQ::popMin() {
     return minValue;
 }
 
-std::pair<double, double> APQ::getMin() {
+std::pair<double, double> APQSaving::getMin() {
     if (isEmpty()) {
         throw std::out_of_range("Priority queue is empty.");
     }
     return heap[0];
 }
 
-void APQ::decreaseKey(double node, double value) {
+void APQSaving::decreaseKey(double node, double value) {
     if (index.find(node) == index.end()) {
         throw std::invalid_argument("Value not in priority queue.");
     }
@@ -105,11 +105,11 @@ void APQ::decreaseKey(double node, double value) {
     prev[node] = (parent >= 0) ? heap[parent].first : -1;
 }
 
-bool APQ::contains(double node) {
+bool APQSaving::contains(double node) {
     return index.find(node) != index.end();
 }
 
-double APQ::getPrev(double node) {
+double APQSaving::getPrev(double node) {
     if (prev.find(node) == prev.end()) {
         throw std::invalid_argument("Node not found in the priority queue.");
     }

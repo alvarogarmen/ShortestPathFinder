@@ -40,7 +40,7 @@ std::unordered_map<int, double> computeLandmarkDistancesRandom(Graph myGraph, in
 
             double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
             double endEdge = myGraph.edgeStarts[currentNode];
-f
+
             for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
                 double edge = myGraph.edges[edgeIndex] - 1;
                 double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);

@@ -11,13 +11,10 @@
 #include <set>
 #include <fstream>  // Added file handling libraries
 
-double distance(Node source, Node target) {
-    return sqrt(std::pow(static_cast<double>(source.coordinateX - target.coordinateX), 2.0)
-                + std::pow(static_cast<double>(source.coordinateY - target.coordinateY), 2.0));
-}
+
 
 double DijkstraSaving(Graph myGraph, double sourceNode, double targetNode) {
-    APQ apq = APQ();
+    APQSaving apq = APQSaving();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
 
