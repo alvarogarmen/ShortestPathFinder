@@ -11,6 +11,7 @@
 #include "ALT-Landmarks.hh"
 #include "ALT.hh"
 #include "Dijkstra_Saving.hh"
+#include "AStar_Saving.hh"
 #include <iostream>
 
 
@@ -99,6 +100,16 @@ void processInputForPlot(double sourceNode, double targetNode, std::string graph
     // Give out the distance and the time
     std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
     std::cout<<"Dijkstra took: "<<time.count()<<"s"<<std::endl;
+
+    // Call Dijkstra and start timer
+    start = std::chrono::high_resolution_clock::now();
+    Dis = AStarSaving(myGraph, sourceNode, targetNode);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the distance and the time
+    std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
+    std::cout<<"A* took: "<<time.count()<<"s"<<std::endl;
 }
 int main(int argc, char* argv[]) {
     //Argtable 3

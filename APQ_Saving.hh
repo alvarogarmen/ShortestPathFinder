@@ -1,5 +1,5 @@
 #ifndef UNTITLED_APQ_SAVING_HH
-#define UNTITLED_APQ__SAVINGHH
+#define UNTITLED_APQ_SAVINGHH
 
 #include <vector>
 #include <unordered_map>
@@ -7,28 +7,28 @@
 
 class APQSaving {
 public:
-    void insertNode(double node, double priority);
+    void insertNode(double node, double priority, double currentNode);
     void shiftDown(int i);
     void shiftUp(int i);
     std::pair<double, double> getMin();
     double popMin();
-    void decreaseKey(double node, double value);
+    void decreaseKey(double node, double value, double prevNode);
     bool contains(double node);
     double getPrev(double node);  // New function to retrieve the previous node
 
     int size() { return heap.size(); }
     bool isEmpty() { return heap.empty(); }
 
-    std::vector<std::pair<double, double>> heap;
+    std::vector<std::pair<double, double>> heap; //Left nodeID, right priority
     std::unordered_map<double, int> index;
     std::unordered_map<double, double> prev;  // New map to store the previous node
 };
 
-void APQSaving::insertNode(double node, double priority) {
+void APQSaving::insertNode(double node, double priority, double currentNode) {
     heap.emplace_back(node, priority);
     index[node] = heap.size() - 1;
     shiftUp(heap.size() - 1);
-    prev[node] = -1;  // Initialize the prev value to -1
+    prev[node] = currentNode;  // Initialize the prev value to -1
 }
 
 void APQSaving::shiftDown(int i) {
@@ -89,7 +89,7 @@ std::pair<double, double> APQSaving::getMin() {
     return heap[0];
 }
 
-void APQSaving::decreaseKey(double node, double value) {
+void APQSaving::decreaseKey(double node, double value, double prevNode) {
     if (index.find(node) == index.end()) {
         throw std::invalid_argument("Value not in priority queue.");
     }
@@ -101,8 +101,7 @@ void APQSaving::decreaseKey(double node, double value) {
     shiftUp(i);
 
     // Update the prev value of the node
-    double parent = (i - 1) / 2;
-    prev[node] = (parent >= 0) ? heap[parent].first : -1;
+    prev[node] = prevNode;
 }
 
 bool APQSaving::contains(double node) {
@@ -111,7 +110,7 @@ bool APQSaving::contains(double node) {
 
 double APQSaving::getPrev(double node) {
     if (prev.find(node) == prev.end()) {
-        throw std::invalid_argument("Node not found in the priority queue.");
+        return -1;
     }
     return prev[node];
 }
