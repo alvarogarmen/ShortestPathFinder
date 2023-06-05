@@ -12,6 +12,7 @@
 #include "ALT.hh"
 #include "Dijkstra_Saving.hh"
 #include "AStar_Saving.hh"
+#include "ALT_Saving.h"
 #include <iostream>
 
 
@@ -26,7 +27,7 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
     std::cout<<"Reading successful"<<std::endl;
     readOtherFile(graph, myGraph);
     std::cout<<"Reading successful"<<std::endl;
-    // Call Dijkstra and start timer
+    // Call Dijkstra and outDegree timer
     auto start = std::chrono::high_resolution_clock::now();
     double Dis = Dijkstra(myGraph, sourceNode, targetNode);
     //Stop the clock
@@ -45,37 +46,54 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
     std::cout<<"A* from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
     std::cout<<"A* took: "<<time.count()<<"s"<<std::endl;
 
-    //ALT with random Landmarks Preprocessing
+    //Saving A* and Dijkstra
+    DijkstraSaving(myGraph, sourceNode, targetNode);
+    AStarSaving(myGraph, sourceNode, targetNode);
+
+    //ALT with MaxDegree (avoiding) Landmarks
     start = std::chrono::high_resolution_clock::now();
-    std::unordered_map<int, double> landmarkDistancesRandom = computeLandmarkDistancesRandom(myGraph, 8);
+    std::vector<double> Landmarks = selectLandmarks(myGraph, 32);
+    std::unordered_map<int, double> landmarkDistances = computeLandmarkDistances(myGraph, Landmarks, 32);
     //Stop the clock
     end = std::chrono::high_resolution_clock::now();
     time = end - start;
     // Give out the time
-    std::cout<<"ALT Random preprocessing took:"<<time.count()<<"s"<<std::endl;
+    std::cout<<"ALT Avoid preprocessing took:"<<time.count()<<"s"<<std::endl;
 
-    //ALT query with random Landmarks
+    //ALT query with MaxDegree (avoiding) Landmarks
     start = std::chrono::high_resolution_clock::now();
-    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistancesRandom);
+    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistances);
     //Stop the clock
     end = std::chrono::high_resolution_clock::now();
     time = end - start;
     // Give out the distance and the time
-    std::cout<<"ALT Random from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
-    std::cout<<"ALT Random query took: "<<time.count()<<std::endl;
+    std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
+    std::cout<<"ALT Avoid query took: "<<time.count()<<std::endl;
+    //Save the exploration and path
+    ALTSaving(myGraph, sourceNode, targetNode, landmarkDistances, "Max_explored_nodes.txt", "Max_path.txt");
 
-    //ALT with furthest Landmarks Preprocessing
+
+    //ALT Furthest Landmarks
     start = std::chrono::high_resolution_clock::now();
-    std::vector<int> landmarkDistancesFurthest = computeFurthestLandmarks(myGraph, 8);
+    Landmarks = computeFurthestLandmarks(myGraph, 32);
+    landmarkDistances = computeLandmarkDistances(myGraph, Landmarks, 32);
     //Stop the clock
     end = std::chrono::high_resolution_clock::now();
     time = end - start;
     // Give out the time
     std::cout<<"ALT Furthest preprocessing took:"<<time.count()<<"s"<<std::endl;
 
-
-
-
+    //ALT Furthest Query
+    start = std::chrono::high_resolution_clock::now();
+    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistances);
+    //Stop the clock
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    // Give out the distance and the time
+    std::cout<<"ALT Furthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
+    std::cout<<"ALT Furthest query took: "<<time.count()<<std::endl;
+    //Save the exploration and path
+    ALTSaving(myGraph, sourceNode, targetNode, landmarkDistances, "Furthest_explored_nodes.txt", "Furthest_path.txt");
 
 
 }
@@ -91,7 +109,7 @@ void processInputForPlot(double sourceNode, double targetNode, std::string graph
     std::cout<<"Reading successful"<<std::endl;
     readOtherFile(graph, myGraph);
     std::cout<<"Reading successful"<<std::endl;
-    // Call Dijkstra and start timer
+    // Call Dijkstra and outDegree timer
     auto start = std::chrono::high_resolution_clock::now();
     double Dis = DijkstraSaving(myGraph, sourceNode, targetNode);
     //Stop the clock
@@ -101,7 +119,7 @@ void processInputForPlot(double sourceNode, double targetNode, std::string graph
     std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
     std::cout<<"Dijkstra took: "<<time.count()<<"s"<<std::endl;
 
-    // Call Dijkstra and start timer
+    // Call Dijkstra and outDegree timer
     start = std::chrono::high_resolution_clock::now();
     Dis = AStarSaving(myGraph, sourceNode, targetNode);
     //Stop the clock
@@ -146,7 +164,7 @@ int main(int argc, char* argv[]) {
         graph = graphArg->sval[0];
     }
     // Call out functions
-    processInputForPlot(sourceNode, targetNode, graph);
+    processInput(sourceNode, targetNode, graph);
 
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 

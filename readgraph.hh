@@ -27,10 +27,10 @@ Graph readCoordFile(std::string Coordfilename){
         // store x and y for the node and push it to the graph
         Node myNode(coordx, coordy, nodeId);
         myGraph.insertNode(myNode);
-    /*  std::cout << "Node " << nodeId <<":" << "\n";            Leaving this here for debugging purposes
-        std::cout << "X Coordinate: " << coordx << "\n";
-        std::cout << "Y Coordinate: " << coordy << "\n";
-        std::cout << "Z Coordinate: " << coordz << "\n"; */
+        /*  std::cout << "Node " << nodeId <<":" << "\n";            Leaving this here for debugging purposes
+            std::cout << "X Coordinate: " << coordx << "\n";
+            std::cout << "Y Coordinate: " << coordy << "\n";
+            std::cout << "Z Coordinate: " << coordz << "\n"; */
         nodeId++;
     }
     return myGraph;
@@ -57,6 +57,7 @@ void readOtherFile(std::string filename, Graph& myGraph) {
             }
             else {
                 myGraph.insertEdge(nodeId);
+                myGraph.getNode(index-1).addNeighbor(nodeId);
                 helper.push_back(nodeId);
 
             }
@@ -64,6 +65,7 @@ void readOtherFile(std::string filename, Graph& myGraph) {
         //set the value for the node to be able to find its edges
         if(count==1) {
             if(helper.size()!=0) {
+
                 myGraph.getNode(index-1).setStart(helper.size() - 1);
                 myGraph.edgeStarts.push_back(helper.size()-1);
             }
@@ -74,7 +76,5 @@ void readOtherFile(std::string filename, Graph& myGraph) {
     }
 
 }
-
-
 
 #endif //UNTITLED_READGRAPH_HH

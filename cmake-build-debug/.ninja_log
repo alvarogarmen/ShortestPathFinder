@@ -1,5 +1,13 @@
 # ninja log v5
-2	194	7076208959259309	build.ninja	391c0cbd41a4b4cb
-6	920	7051817277967551	CMakeFiles/praktikum.dir/argtable3.c.obj	58b2b36c0f15aeb
-6	1999	7076194880435342	CMakeFiles/praktikum.dir/main.cpp.obj	499241510cd8756a
-2003	2409	7076194884522720	praktikum.exe	373f9dfda7a10bee
+2	296	7076810610482766	build.ninja	391c0cbd41a4b4cb
+13	3057	7076785873354357	CMakeFiles/praktikum.dir/argtable3.c.obj	58b2b36c0f15aeb
+4	1837	7076807417530103	CMakeFiles/praktikum.dir/main.cpp.obj	499241510cd8756a
+1837	2196	7076807421061968	praktikum.exe	373f9dfda7a10bee
+4	1866	7076815748969803	CMakeFiles/praktikum.dir/main.cpp.obj	499241510cd8756a
+1867	2212	7076815752402595	praktikum.exe	373f9dfda7a10bee
+3	2050	7076815955417477	CMakeFiles/praktikum.dir/main.cpp.obj	499241510cd8756a
+2051	2532	7076815960188744	praktikum.exe	373f9dfda7a10bee
+4	1932	7076822382040346	CMakeFiles/praktikum.dir/main.cpp.obj	499241510cd8756a
+1937	2300	7076822385676156	praktikum.exe	373f9dfda7a10bee
+9	1986	7076822751873995	CMakeFiles/praktikum.dir/main.cpp.obj	499241510cd8756a
+1987	2455	7076822756582258	praktikum.exe	373f9dfda7a10bee

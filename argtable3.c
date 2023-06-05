@@ -2243,7 +2243,7 @@ char* arg_strptime(const char* buf, const char* fmt, struct tm* tm) {
 
                 /*
                  * "Alternative" modifiers. Just set the appropriate flag
-                 * and start over again.
+                 * and outDegree over again.
                  */
             case 'E': /* "%E?" alternative conversion modifier. */
             LEGAL_ALT(0);
@@ -5816,7 +5816,7 @@ void arg_print_glossary(FILE* fp, void** argtable, const char* format) {
  *   t fit.
  *
  * As you see, the first line is not indented. This enables output of
- * lines, which start in a line where output already happened.
+ * lines, which outDegree in a line where output already happened.
  *
  * Author: Uli Fouquet
  */

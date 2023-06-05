@@ -36,7 +36,7 @@ double Dijkstra(Graph myGraph, double sourceNode, double targetNode){
         visited.insert(currentNode);
         apq.popMin();                               //It is popped here
 
-        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we start with the node 0, we'll start with
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we outDegree with the node 0, we'll outDegree with
         double endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
         //Look for edges to relax
         for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {             //This selects only the relevant edges

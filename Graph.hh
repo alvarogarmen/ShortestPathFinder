@@ -20,6 +20,7 @@ public:
     double edgeCount;                   //Nor this. nodes.size() does the trick
     Node& getNode(double nodeId);       //Getter by reference. Useful when reading the files
     std::vector<Node> getNodes();
+    double findMaxDegreeNode();
 };
 Graph::Graph() {}
 
@@ -38,4 +39,17 @@ std::vector<Node> Graph::getNodes() {
     return this->nodes;
 }
 
+double Graph::findMaxDegreeNode() {
+    double maxDegreeNode = 0;
+    double maxDegree = std::numeric_limits<double>::min();
+
+    for (auto& node : this->nodes) {
+        if (node.outDegree > maxDegree) {
+            maxDegreeNode = node.nodeId;
+            maxDegree = node.outDegree;
+        }
+    }
+
+    return maxDegreeNode;
+}
 #endif

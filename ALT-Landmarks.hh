@@ -16,6 +16,54 @@
 #include <queue>
 #include <unordered_set>
 
+
+std::unordered_map<int, double> computeLandmarkDistances(Graph myGraph, std::vector<double> landmarks, int numLandmarks){
+    //Initialize the landmarkDistances
+    std::unordered_map<int, double> landmarkDistances;
+
+    // Compute distances from landmarks to all other nodes using Dijkstra's algorithm
+    for (double landmark : landmarks) {
+        std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+        std::set<double> visited;
+        APQ apq;
+
+        apq.insertNode(landmark, 0);
+        dist[landmark] = 0;
+
+        while (!apq.isEmpty()) {
+            double currentNode = apq.getMin().first;
+            visited.insert(currentNode);
+            apq.popMin();
+
+            double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+            double endEdge = myGraph.edgeStarts[currentNode];
+
+            for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+                double edge = myGraph.edges[edgeIndex] - 1;
+                double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+                if (dist[currentNode] + weight < dist[edge]) {
+                    dist[edge] = dist[currentNode] + weight;
+
+                    if (visited.find(edge) == visited.end()) {
+                        apq.insertNode(edge, dist[edge]);
+                    }
+                }
+            }
+        }
+
+        // Store the landmark distances
+        for (int i = 0; i < dist.size(); i++) {
+            landmarkDistances[i + 1] += dist[i];
+        }
+    }
+
+    // Normalize the landmark distances
+    for (auto& entry : landmarkDistances) {
+        entry.second /= numLandmarks;
+    }
+    return landmarkDistances;
+}
 std::unordered_map<int, double> computeLandmarkDistancesRandom(Graph myGraph, int numLandmarks) {
     //Initialize the landmarkDistances
     std::unordered_map<int, double> landmarkDistances;
@@ -68,10 +116,10 @@ std::unordered_map<int, double> computeLandmarkDistancesRandom(Graph myGraph, in
     return landmarkDistances;
 }
 
-std::vector<int> computeFurthestLandmarks(Graph myGraph, int numLandmarks) {
-    std::vector<int> landmarks;
+std::vector<double> computeFurthestLandmarks(Graph myGraph, int numLandmarks) {
+    std::vector<double> landmarks;
     std::vector<Node> nodes = myGraph.getNodes();
-    std::unordered_set<int> selectedNodes;  // To keep track of selected landmarks
+    std::unordered_set<double> selectedNodes;  // To keep track of selected landmarks
 
     // Randomly select the first landmark node
     int firstLandmark = rand() % nodes.size();
@@ -108,6 +156,23 @@ std::vector<int> computeFurthestLandmarks(Graph myGraph, int numLandmarks) {
         landmarks.push_back(furthestNode);
         selectedNodes.insert(furthestNode);
     }
+    return landmarks;
+}
+
+std::vector<double> selectLandmarks(Graph& myGraph, double numLandmarks) {
+    std::vector<double> landmarks;
+
+    for (double i = 0; i < numLandmarks; i++) {
+        double maxDegreeNode = myGraph.findMaxDegreeNode();
+        landmarks.push_back(maxDegreeNode);
+
+        // Update the outDegree of the selected landmark and its neighbors to avoid them in the next iteration
+        myGraph.getNode(maxDegreeNode).outDegree = 0;
+        for (double neighborId : myGraph.getNode(maxDegreeNode).neighbors) {
+            myGraph.getNode(neighborId).outDegree--;
+        }
+    }
+
     return landmarks;
 }
 #endif //PRAKTIKUM_ALT_LANDMARKS_HH
