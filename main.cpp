@@ -13,10 +13,11 @@
 #include "Dijkstra_Saving.hh"
 #include "AStar_Saving.hh"
 #include "ALT_Saving.h"
+#include "ProcessInput.hh"
 #include <iostream>
 
 
-void processInput(double sourceNode, double targetNode, std::string graph) {        //This will call Dijkstra and read the files
+void processInput(double sourceNode, double targetNode, std::string graph, int numLandmarks, int newLandmarks) {        //This will call Dijkstra and read the files
     // Give out the input
     std::cout << "Source Node: " << sourceNode << std::endl;
     std::cout << "Target Node: " << targetNode << std::endl;
@@ -27,74 +28,34 @@ void processInput(double sourceNode, double targetNode, std::string graph) {    
     std::cout<<"Reading successful"<<std::endl;
     readOtherFile(graph, myGraph);
     std::cout<<"Reading successful"<<std::endl;
-    // Call Dijkstra and outDegree timer
-    auto start = std::chrono::high_resolution_clock::now();
-    double Dis = Dijkstra(myGraph, sourceNode, targetNode);
-    //Stop the clock
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end - start;
-    // Give out the distance and the time
-    std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
-    std::cout<<"Dijkstra took: "<<time.count()<<"s"<<std::endl;
+
+    //Dijkstra
+    callDijkstra(myGraph, sourceNode, targetNode);
+
     //A*
-    start = std::chrono::high_resolution_clock::now();
-    Dis = AStar(myGraph, sourceNode, targetNode);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the distance and the time
-    std::cout<<"A* from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
-    std::cout<<"A* took: "<<time.count()<<"s"<<std::endl;
+    callAStar(myGraph, sourceNode, targetNode);
 
     //Saving A* and Dijkstra
     DijkstraSaving(myGraph, sourceNode, targetNode);
     AStarSaving(myGraph, sourceNode, targetNode);
 
+    //ALT Avoid
+    callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks);
+
+    //ALT Bidirectional Avoid
+    callALTBiAvoid(myGraph, sourceNode, targetNode, numLandmarks);
     //ALT with MaxDegree (avoiding) Landmarks
-    start = std::chrono::high_resolution_clock::now();
-    std::vector<double> Landmarks = selectLandmarks(myGraph, 32);
-    std::unordered_map<int, double> landmarkDistances = computeLandmarkDistances(myGraph, Landmarks, 32);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the time
-    std::cout<<"ALT Avoid preprocessing took:"<<time.count()<<"s"<<std::endl;
+    /*callALTMaxDegree(myGraph, sourceNode, targetNode, numLandmarks);
 
-    //ALT query with MaxDegree (avoiding) Landmarks
-    start = std::chrono::high_resolution_clock::now();
-    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistances);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the distance and the time
-    std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
-    std::cout<<"ALT Avoid query took: "<<time.count()<<std::endl;
-    //Save the exploration and path
-    ALTSaving(myGraph, sourceNode, targetNode, landmarkDistances, "Max_explored_nodes.txt", "Max_path.txt");
-
-
+    std::vector<double> Landmarks;
     //ALT Furthest Landmarks
-    start = std::chrono::high_resolution_clock::now();
-    Landmarks = computeFurthestLandmarks(myGraph, 32);
-    landmarkDistances = computeLandmarkDistances(myGraph, Landmarks, 32);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the time
-    std::cout<<"ALT Furthest preprocessing took:"<<time.count()<<"s"<<std::endl;
-
-    //ALT Furthest Query
-    start = std::chrono::high_resolution_clock::now();
-    Dis = ALT(myGraph, sourceNode, targetNode, landmarkDistances);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the distance and the time
-    std::cout<<"ALT Furthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
-    std::cout<<"ALT Furthest query took: "<<time.count()<<std::endl;
-    //Save the exploration and path
-    ALTSaving(myGraph, sourceNode, targetNode, landmarkDistances, "Furthest_explored_nodes.txt", "Furthest_path.txt");
-
+    if(newLandmarks == 0){
+        Landmarks = loadLandmarks(graph);
+    }
+    else {
+        Landmarks = callComputeFurthestLandmarks(myGraph, numLandmarks, graph);
+    }
+    callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks, Landmarks);*/
 
 }
 
@@ -133,15 +94,19 @@ int main(int argc, char* argv[]) {
     //Argtable 3
     double sourceNode;
     double targetNode;
+    int numLandmarks;
+    int newLandmarks;
     std::string graph;
 
     struct arg_dbl* sourceArg = arg_dbl0(NULL, "source", "<double>", "source node");
     struct arg_dbl* targetArg = arg_dbl0(NULL, "target", "<double>", "target node");
+    struct arg_int* landmarkArg = arg_int0(NULL, "landmarks", "<integer>", "number of landmarks");
+    struct arg_int* newLandmarkArg = arg_int0(NULL, "newLandmarks?", "<integer>", "0 for old landmarks");
     struct arg_str* graphArg = arg_str0(NULL, "graph", "<string>", "file with the graph, keep the .graph!");
 
     struct arg_end* end = arg_end(20); // Define the end marker for the argtable array
 
-    void* argtable[] = { sourceArg, targetArg, graphArg, end };
+    void* argtable[] = { sourceArg, targetArg, landmarkArg, newLandmarkArg, graphArg, end };
 
     const char* progname = "myprogram";
     int nerrors = arg_parse(argc, argv, argtable);
@@ -159,12 +124,17 @@ int main(int argc, char* argv[]) {
     if (targetArg->count > 0) {
         targetNode = targetArg->dval[0];
     }
-
+    if (landmarkArg->count > 0){
+        numLandmarks = landmarkArg->ival[0];
+    }
+    if(newLandmarkArg->count >0){
+        newLandmarks = newLandmarkArg->ival[0];
+    }
     if (graphArg->count > 0) {
         graph = graphArg->sval[0];
     }
     // Call out functions
-    processInput(sourceNode, targetNode, graph);
+    processInput(sourceNode, targetNode, graph, numLandmarks, newLandmarks);
 
     arg_freetable(argtable, sizeof(argtable) / sizeof(argtable[0]));
 
