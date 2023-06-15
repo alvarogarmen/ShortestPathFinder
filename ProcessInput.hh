@@ -83,7 +83,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<double> landmarks = avoidLandmarkSelection(myGraph, numLandmarks);
     std::cout<<"Landmark Selection successful"<<std::endl;
-    std::vector<std::vector<double>> potentials = precomputePotentials(myGraph, landmarks);
+    std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarks);
     std::cout<<"Precomputation Complete"<<std::endl;
     //Stop the clock
     auto end = std::chrono::high_resolution_clock::now();
@@ -107,6 +107,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
     std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
     std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
     ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
+    std::cout<<"Saved"<<std::endl;
 
 }
 std::vector<double> callComputeFurthestLandmarks(Graph myGraph, int numLandmarks, std::string graph){

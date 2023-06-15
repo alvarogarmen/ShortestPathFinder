@@ -66,7 +66,8 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
                     return dist[edge];
                 }
 
-                double f = dist[edge] + potentials[edge][targetNode - 1];
+                double h = estimate(edge + 1, targetNode, potentials);
+                double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f, currentNode);

@@ -41,9 +41,9 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     std::cout<<"HERE"<<std::endl;
 
     //Bidirectional A*
-    callAStarBidirectional(myGraph, sourceNode, targetNode);
+    //callAStarBidirectional(myGraph, sourceNode, targetNode);
     //ALT Avoid
-    //callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks);
+    callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks);
     std::cout<<"STRANGE"<<std::endl;
 
     //ALT Bidirectional Avoid
@@ -51,7 +51,9 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     //ALT with MaxDegree (avoiding) Landmarks
    //callALTMaxDegree(myGraph, sourceNode, targetNode, numLandmarks);
 
-    callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks);
+    //callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks);
+
+    callHHS(myGraph, sourceNode, targetNode, numLandmarks);
 }
 
 void processInputForPlot(double sourceNode, double targetNode, std::string graph){

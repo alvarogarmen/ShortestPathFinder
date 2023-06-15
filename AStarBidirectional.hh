@@ -155,7 +155,7 @@ double AStarBidirectionalSaving(Graph myGraph, double sourceNode, double targetN
                     }
                 }
 
-                double forwardH = ManhattanDistance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode - 1]);
+                double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode - 1]);
                 double forwardF = forwardDist[forwardEdge] + forwardH;
 
                 if (forwardAPQ.contains(forwardEdge)) {

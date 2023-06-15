@@ -18,30 +18,13 @@
 #include <random>
 
 std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
-    std::vector<std::vector<double>> potentials;
-    std::vector<std::vector<double>> landmarkToNodes(landmarks.size(), std::vector<double>(myGraph.getNodes().size()));
-    std::vector<std::vector<double>> nodesToLandmarks(landmarkToNodes[0].size(), std::vector<double>(landmarkToNodes.size()));
+    std::vector<std::vector<double>> potentials(myGraph.getNodes().size(), std::vector<double>(landmarks.size()));
 
-    for (Node node : myGraph.getNodes()) {
-        std::vector<double> nodePotentials;
-        for (double landmark : landmarks) {
-            double potentialPlus = distance(myGraph.getNode(landmark), node);
-            double potentialMinus = distance(node, myGraph.getNode(landmark));
-            double combinedPotential = std::max(potentialPlus, potentialMinus);
-            nodePotentials.push_back(combinedPotential);
-        }
-        potentials.push_back(nodePotentials);
-    }
 
-    // Calculate potentials for estimating ALT heuristic
-    for (size_t i = 0; i < potentials.size(); i++) {
-        for (size_t j = 0; j < potentials[i].size(); j++) {
-            double minPotential = std::numeric_limits<double>::infinity();
-            for (size_t k = 0; k < potentials.size(); k++) {
-                double potentialPlus = potentials[i][k] + potentials[k][j];
-                minPotential = std::min(minPotential, potentialPlus);
-            }
-            potentials[i][j] = minPotential;
+    for (double i = 0; i<potentials.size(); i++){
+        for(int j = 0; j<landmarks.size(); j++){
+            potentials[i][j]=distance(myGraph.getNode(i), myGraph.getNode(landmarks[j]));
+
         }
     }
 

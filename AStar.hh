@@ -8,6 +8,7 @@
 #include <climits>
 #include "APQ.hh"
 #include "Dijkstra.hh"
+#include "AStarBidirectional.hh"
 #include <cmath>
 #include <set>
 
