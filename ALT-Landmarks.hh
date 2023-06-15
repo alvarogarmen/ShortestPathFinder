@@ -17,6 +17,84 @@
 #include <unordered_set>
 #include <random>
 
+std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
+    std::vector<std::vector<double>> potentials;
+    std::vector<std::vector<double>> landmarkToNodes(landmarks.size(), std::vector<double>(myGraph.getNodes().size()));
+    std::vector<std::vector<double>> nodesToLandmarks(landmarkToNodes[0].size(), std::vector<double>(landmarkToNodes.size()));
+
+    for (Node node : myGraph.getNodes()) {
+        std::vector<double> nodePotentials;
+        for (double landmark : landmarks) {
+            double potentialPlus = distance(myGraph.getNode(landmark), node);
+            double potentialMinus = distance(node, myGraph.getNode(landmark));
+            double combinedPotential = std::max(potentialPlus, potentialMinus);
+            nodePotentials.push_back(combinedPotential);
+        }
+        potentials.push_back(nodePotentials);
+    }
+
+    // Calculate potentials for estimating ALT heuristic
+    for (size_t i = 0; i < potentials.size(); i++) {
+        for (size_t j = 0; j < potentials[i].size(); j++) {
+            double minPotential = std::numeric_limits<double>::infinity();
+            for (size_t k = 0; k < potentials.size(); k++) {
+                double potentialPlus = potentials[i][k] + potentials[k][j];
+                minPotential = std::min(minPotential, potentialPlus);
+            }
+            potentials[i][j] = minPotential;
+        }
+    }
+
+    return potentials;
+}
+std::vector<std::vector<double>> precomputeLandmarkToNodes(Graph myGraph, const std::vector<double>& landmarks){
+    std::vector<std::vector<double>> landmarkToNodes(landmarks.size(), std::vector<double>(myGraph.getNodes().size()));
+
+    int i = 0;
+    //First compute all landmarks to all nodes and vice versa
+    for(double landmark : landmarks){
+        std::cout<<"Iteration LandmarkToNodes: "<<i<<std::endl;
+        landmarkToNodes[i] = DijkstraToALL(myGraph, landmark);
+        i++;
+    }
+    return landmarkToNodes;
+}
+std::vector<std::vector<double>> precomputeNodeToLandmarks(Graph myGraph, const std::vector<std::vector<double>> landmarkToNodes){
+    std::vector<std::vector<double>> nodesToLandmarks(landmarkToNodes[0].size(), std::vector<double>(landmarkToNodes.size()));
+    //First compute all landmarks to all nodes and vice versa
+    for(int i = 0; i<landmarkToNodes.size(); i++){
+        for (int j = 0; j<landmarkToNodes[0].size();j++){
+            nodesToLandmarks[j][i]=landmarkToNodes[i][j];
+        }
+
+    }
+    return nodesToLandmarks;
+}
+std::vector<std::vector<double>> precomputePotentials(Graph myGraph, const std::vector<double>& landmarks) {
+    std::vector<std::vector<double>> potentials;
+
+    // Precompute landmark-to-nodes potentials
+    std::vector<std::vector<double>> landmarkToNodes = precomputeLandmarkToNodes(myGraph, landmarks);
+
+    // Precompute node-to-landmarks potentials
+    std::vector<std::vector<double>> nodeToLandmarks = precomputeNodeToLandmarks(myGraph, landmarkToNodes);
+
+    // Precompute combined potentials
+    for (Node node : myGraph.getNodes()) {
+        std::vector<double> nodePotentials;
+        for (double landmark : landmarks) {
+            double potentialPlus = landmarkToNodes[landmark][node.nodeId];
+            double potentialMinus = nodeToLandmarks[node.nodeId][landmark];
+            double combinedPotential = std::max(potentialPlus, potentialMinus);
+            nodePotentials.push_back(combinedPotential);
+        }
+        potentials.push_back(nodePotentials);
+    }
+
+    return potentials;
+}
+
+
 
 std::unordered_map<int, double> computeLandmarkDistances(Graph myGraph, std::vector<double> landmarks, int numLandmarks){
     //Initialize the landmarkDistances
@@ -28,8 +106,8 @@ std::unordered_map<int, double> computeLandmarkDistances(Graph myGraph, std::vec
         std::set<double> visited;
         APQ apq;
 
-        apq.insertNode(landmark, 0);
-        dist[landmark] = 0;
+        apq.insertNode(landmark-1, 0);
+        dist[landmark-1] = 0;
 
         while (!apq.isEmpty()) {
             double currentNode = apq.getMin().first;
@@ -58,11 +136,7 @@ std::unordered_map<int, double> computeLandmarkDistances(Graph myGraph, std::vec
             landmarkDistances[i + 1] += dist[i];
         }
     }
-
-    // Normalize the landmark distances
-    for (auto& entry : landmarkDistances) {
-        entry.second /= numLandmarks;
-    }
+    std::cout<<Dijkstra(myGraph, landmarks[3], 1000)<<" vs landmarkdistances"<<landmarkDistances[3,1000]<<std::endl;
     return landmarkDistances;
 }
 std::unordered_map<int, double> computeLandmarkDistancesRandom(Graph myGraph, int numLandmarks) {
@@ -122,7 +196,7 @@ std::vector<double> computeFurthestLandmarks(Graph myGraph, int numLandmarks, st
     std::vector<Node> nodes = myGraph.getNodes();
     std::unordered_set<double> selectedNodes;  // To keep track of selected landmarks
 
-    // Select the first landmark node as the most southeastern one
+    // Select the first landmark node as the most southwestern one
     int firstLandmark = 0;
     for (Node node : myGraph.nodes){
         if (node.coordinateX+node.coordinateY < myGraph.nodes[firstLandmark].coordinateX+myGraph.nodes[firstLandmark].coordinateY){
@@ -179,7 +253,7 @@ std::vector<double> computeFurthestLandmarks(Graph myGraph, int numLandmarks, st
     return landmarks;
 }
 
-std::vector<double> selectLandmarks(Graph& myGraph, double numLandmarks) {
+std::vector<double> selectLandmarks(Graph myGraph, double numLandmarks) {
     std::vector<double> landmarks;
 
     for (double i = 0; i < numLandmarks; i++) {

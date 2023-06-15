@@ -1,18 +1,4 @@
-//
-// Created by alvar on 12/06/2023.
-//
-
-#ifndef PRAKTIKUM_ALT_BIDIRECTIONAL_HH
-#define PRAKTIKUM_ALT_BIDIRECTIONAL_HH
-
-#include <unordered_map>
-#include <set>
-#include "Graph.hh"
-#include "APQ.hh"
-#include "Dijkstra.hh"
-#include "ALT.hh"
-
-double ALTBidirectional(Graph myGraph, double sourceNode, double targetNode, std::unordered_map<int, double> landmarkDistances) {
+double ALTBidirectional(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
     APQ apqForward = APQ();  // Priority queue for forward search
     APQ apqBackward = APQ(); // Priority queue for backward search
     std::set<double> visitedForward;  // Set of visited nodes for forward search
@@ -50,9 +36,7 @@ double ALTBidirectional(Graph myGraph, double sourceNode, double targetNode, std
                     break;
                 }
 
-                double forwardH = estimate(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode - 1],
-                                           landmarkDistances[forwardEdge], landmarkDistances[targetNode - 1]);
-                double forwardF = distForward[forwardEdge] + forwardH;
+                double forwardF = distForward[forwardEdge] + potentials[forwardEdge][targetNode - 1];
 
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
@@ -86,9 +70,7 @@ double ALTBidirectional(Graph myGraph, double sourceNode, double targetNode, std
                     break;
                 }
 
-                double backwardH = estimate(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode - 1],
-                                            landmarkDistances[backwardEdge], landmarkDistances[sourceNode - 1]);
-                double backwardF = distBackward[backwardEdge] + backwardH;
+                double backwardF = distBackward[backwardEdge] + potentials[backwardEdge][sourceNode - 1];
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
@@ -120,5 +102,3 @@ double ALTBidirectional(Graph myGraph, double sourceNode, double targetNode, std
 
     return shortestPathDistance;
 }
-
-#endif //PRAKTIKUM_ALT_BIDIRECTIONAL_HH

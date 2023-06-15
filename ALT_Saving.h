@@ -15,7 +15,7 @@
 #include <set>
 #include <fstream>
 
-double ALTSaving(Graph myGraph, double sourceNode, double targetNode, std::unordered_map<int, double> landmarkDistances, std::string exploredNodes, std::string path){
+double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials, std::string exploredNodes, std::string path) {
     APQSaving apq = APQSaving();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -27,6 +27,7 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, std::unord
     std::ofstream pathFile;      // File stream for path
     exploredFile.open(exploredNodes);  // Open explored nodes file
     pathFile.open(path);                // Open path file
+
     while (!apq.isEmpty()) {
         double currentNode = apq.getMin().first;
         visited.insert(currentNode);
@@ -44,32 +45,28 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, std::unord
                 dist[edge] = dist[currentNode] + weight;
 
                 if (edge == targetNode - 1) {
-                    if (edge == targetNode - 1) {
-                        std::vector<double> path;
-                        path.push_back(edge);
-                        double prevNode = currentNode;
-                        while (prevNode != -1 && prevNode != sourceNode - 1) {
-                            path.push_back(prevNode);
-                            prevNode = apq.getPrev(prevNode);
-                        }
+                    std::vector<double> path;
+                    path.push_back(edge);
+                    double prevNode = currentNode;
+                    while (prevNode != -1 && prevNode != sourceNode - 1) {
                         path.push_back(prevNode);
-
-                        // Write the path to the file in reverse order
-                        for (int i = 0; i < path.size() - 1; i++) {
-                            pathFile << myGraph.getNode(path[i]).coordinateX << " "
-                                     << myGraph.getNode(path[i]).coordinateY
-                                     << " " << path[i] << " " << std::endl;
-                        }
-
-                        exploredFile.close();  // Close the files before returning
-                        pathFile.close();
-                        return dist[edge];
+                        prevNode = apq.getPrev(prevNode);
                     }
+                    path.push_back(prevNode);
+
+                    // Write the path to the file in reverse order
+                    for (int i = path.size() - 1; i >= 0; i--) {
+                        pathFile << myGraph.getNode(path[i]).coordinateX << " "
+                                 << myGraph.getNode(path[i]).coordinateY
+                                 << " " << path[i] << " " << std::endl;
+                    }
+
+                    exploredFile.close();  // Close the files before returning
+                    pathFile.close();
+                    return dist[edge];
                 }
 
-                double h = estimate(myGraph.nodes[edge], myGraph.nodes[targetNode - 1],
-                                    landmarkDistances[edge], landmarkDistances[targetNode - 1]);
-                double f = dist[edge] + h;
+                double f = dist[edge] + potentials[edge][targetNode - 1];
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f, currentNode);
@@ -86,4 +83,5 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, std::unord
     }
     return dist[targetNode - 1];
 }
+
 #endif //PRAKTIKUM_ALT_SAVING_H

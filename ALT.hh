@@ -13,13 +13,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-
-
-double estimate(Node source, Node target, double landmarkDist, double landmarkDistTarget) {
-    return landmarkDist + distance(source, target) - landmarkDistTarget;
-}
-
-double ALT(Graph myGraph, double sourceNode, double targetNode, std::unordered_map<int, double> landmarkDistances) {
+double ALT(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
     APQ apq = APQ();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -46,9 +40,7 @@ double ALT(Graph myGraph, double sourceNode, double targetNode, std::unordered_m
                     return dist[edge];
                 }
 
-                double h = estimate(myGraph.nodes[edge], myGraph.nodes[targetNode - 1],
-                                    landmarkDistances[edge], landmarkDistances[targetNode - 1]);
-                double f = dist[edge] + h;
+                double f = dist[edge] + potentials[edge][targetNode - 1];
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f);
@@ -65,5 +57,7 @@ double ALT(Graph myGraph, double sourceNode, double targetNode, std::unordered_m
     }
     return dist[targetNode - 1];
 }
+
+
 
 #endif

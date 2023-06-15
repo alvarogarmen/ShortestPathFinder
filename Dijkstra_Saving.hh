@@ -19,8 +19,8 @@ double DijkstraSaving(Graph myGraph, double sourceNode, double targetNode) {
 
     std::ofstream exploredFile;  // File stream for explored nodes
     std::ofstream pathFile;      // File stream for path
-    exploredFile.open("explored_nodes.txt");  // Open explored nodes file
-    pathFile.open("path.txt");                // Open path file
+    exploredFile.open("explored_nodes");  // Open explored nodes file
+    pathFile.open("path");                // Open path file
 
     while (!apq.isEmpty()) {
         double currentNode = apq.getMin().first;
