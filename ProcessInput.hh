@@ -114,8 +114,11 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
     std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
     ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
     std::cout<<"Saved"<<std::endl;
-
+    start = std::chrono::high_resolution_clock::now();
     std::cout<<"Bidirectional: "<<ALTBidirectional(myGraph, sourceNode, targetNode, potentials)<<std::endl;
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    std::cout<<"Took :"<<time.count()<<std::endl;
 
 }
 

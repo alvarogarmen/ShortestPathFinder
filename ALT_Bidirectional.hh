@@ -24,9 +24,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
         apqForward.popMin();
         apqBackward.popMin();
 
-        if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
-            meetingNode = forwardNode;
-            break;
+        if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
+            return bestPath;
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
@@ -65,7 +64,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             if (distBackward[backwardNode] + backwardWeight + estimate(backwardEdge, sourceNode, potentials) < distBackward[backwardEdge] + estimate(backwardEdge, sourceNode, potentials)) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = estimate(sourceNode, backwardEdge, potentials);
+                double backwardH = estimate(backwardEdge, sourceNode, potentials);
                 double backwardF = distBackward[backwardEdge] + backwardH;
 
                 if (apqBackward.contains(backwardEdge)) {
