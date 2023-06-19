@@ -27,6 +27,12 @@ void callDijkstra(Graph myGraph, double sourceNode, double targetNode){
     // Give out the distance and the time
     std::cout<<"Distance from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
     std::cout<<"Dijkstra took: "<<time.count()<<"s"<<std::endl;
+    start = std::chrono::high_resolution_clock::now();
+    Dis = BidirectionalDijkstra(myGraph, sourceNode, targetNode);
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    std::cout<<"Bidirectional Dijkstra from Node "<<sourceNode<<" to Node "<<targetNode<<" is: "<<Dis<<std::endl;
+    std::cout<<"Bidirectional Dijkstra took: "<<time.count()<<"s"<<std::endl;
 }
 
 void callAStar(Graph myGraph, double sourceNode, double targetNode){
