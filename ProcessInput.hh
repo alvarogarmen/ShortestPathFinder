@@ -115,18 +115,10 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
     ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
     std::cout<<"Saved"<<std::endl;
 
+    std::cout<<"Bidirectional: "<<ALTBidirectional(myGraph, sourceNode, targetNode, potentials)<<std::endl;
+
 }
-std::vector<double> callComputeFurthestLandmarks(Graph myGraph, int numLandmarks, std::string graph){
-    auto start = std::chrono::high_resolution_clock::now();
-    std::vector<double> Landmarks = computeFurthestLandmarks(myGraph, numLandmarks, "landmarksbelgium");
-    std::unordered_map<int, double>landmarkDistances = computeLandmarkDistances(myGraph, Landmarks, numLandmarks);
-    //Stop the clock
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end - start;
-    // Give out the time
-    std::cout<<"ALT Furthest preprocessing took:"<<time.count()<<"s"<<std::endl;
-    return Landmarks;
-}
+
 
 std::vector<double> loadLandmarks(std::string graph){
     std::vector<double> vec;

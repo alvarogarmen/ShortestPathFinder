@@ -6,103 +6,96 @@
 #include "Dijkstra.hh"
 #include <cmath>
 #include <set>
-double ManhattanDistance(Node source, Node target) {                             //Calculate Manhattan distance
-    return std::abs(static_cast<double>(source.coordinateX - target.coordinateX))
-                + std::abs(static_cast<double>(source.coordinateY - target.coordinateY));
-}
-double AStarBidirectional(Graph myGraph, double sourceNode, double targetNode) {
-    APQ forwardAPQ = APQ();
-    APQ backwardAPQ = APQ();
-    std::set<double> forwardVisited;
-    std::set<double> backwardVisited;
-    std::vector<double> forwardDist(myGraph.nodes.size(), INT_MAX);
-    std::vector<double> backwardDist(myGraph.nodes.size(), INT_MAX);
 
-    forwardAPQ.insertNode(sourceNode - 1, 0);
-    backwardAPQ.insertNode(targetNode - 1, 0);
-    forwardDist[sourceNode - 1] = 0;
-    backwardDist[targetNode - 1] = 0;
+double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode) {
+    APQ apqForward = APQ();
+    APQ apqBackward = APQ();
+    std::set<double> visitedForward;
+    std::set<double> visitedBackward;
+    std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
-    while (!forwardAPQ.isEmpty() && !backwardAPQ.isEmpty()) {
-        double forwardNode = forwardAPQ.getMin().first;
-        forwardVisited.insert(forwardNode);
-        forwardAPQ.popMin();
+    apqForward.insertNode(sourceNode - 1, 0);
+    apqBackward.insertNode(targetNode - 1, 0);
+    distForward[sourceNode - 1] = 0;
+    distBackward[targetNode - 1] = 0;
 
-        double backwardNode = backwardAPQ.getMin().first;
-        backwardVisited.insert(backwardNode);
-        backwardAPQ.popMin();
+    double bestPath = INT_MAX;
+    double meetingNode = -1;
 
-        double forwardStartEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
-        double forwardEndEdge = myGraph.edgeStarts[forwardNode];
+    while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
+        double forwardNode = apqForward.getMin().first;
+        double backwardNode = apqBackward.getMin().first;
 
-        for (double edgeIndex = forwardStartEdge; edgeIndex <= forwardEndEdge; edgeIndex++) {
-            double forwardEdge = myGraph.edges[edgeIndex] - 1;
-            double weight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
+        visitedForward.insert(forwardNode);
+        visitedBackward.insert(backwardNode);
 
-            if (forwardDist[forwardNode] + weight < forwardDist[forwardEdge]) {
-                forwardDist[forwardEdge] = forwardDist[forwardNode] + weight;
+        apqForward.popMin();
+        apqBackward.popMin();
 
-                if (forwardVisited.find(forwardEdge) == forwardVisited.end()) {
-                    double h = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode - 1]);
-                    double f = forwardDist[forwardEdge] + h;
-
-                    if (forwardAPQ.contains(forwardEdge)) {
-                        forwardAPQ.decreaseKey(forwardEdge, f);
-                    } else {
-                        forwardAPQ.insertNode(forwardEdge, f);
-                    }
-                }
-            }
-            if (backwardVisited.find(forwardEdge)!= backwardVisited.end()){
-                std::cout<<"forwardEdge Weight:"<<weight<<std::endl;
-                double forwardDistToNode = forwardDist[forwardEdge];
-                double backwardDistToNode = backwardDist[forwardEdge];
-                return forwardDistToNode + backwardDistToNode;
-            }
+        if (forwardNode == backwardNode) {
+            meetingNode = forwardNode;
+            break;
         }
 
-        double backwardStartEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
-        double backwardEndEdge = myGraph.edgeStarts[backwardNode];
+        double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
+        double endForwardEdge = myGraph.edgeStarts[forwardNode];
 
-        for (double edgeIndex = backwardStartEdge; edgeIndex <= backwardEndEdge; edgeIndex++) {
-            double edge = myGraph.edges[edgeIndex] - 1;
-            double weight = distance(myGraph.nodes[backwardNode], myGraph.nodes[edge]);
+        double startBackwardEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
+        double endBackwardEdge = myGraph.edgeStarts[backwardNode];
 
-            if (backwardDist[backwardNode] + weight < backwardDist[edge]) {
-                backwardDist[edge] = backwardDist[backwardNode] + weight;
+        for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
+            double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
+            double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
-                if (backwardVisited.find(edge) == backwardVisited.end()) {
-                    double h = ManhattanDistance(myGraph.nodes[edge], myGraph.nodes[sourceNode - 1]);
-                    double f = backwardDist[edge] + h;
+            if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
+                distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                    if (backwardAPQ.contains(edge)) {
-                        backwardAPQ.decreaseKey(edge, f);
-                    } else {
-                        backwardAPQ.insertNode(edge, f);
-                    }
-                }
-                if(forwardVisited.find(edge)!=forwardVisited.end()){
-                    std::cout<<"backwardEdge"<<weight<<std::endl;
-                    double forwardDistToNode = forwardDist[edge];
-                    double backwardDistToNode = backwardDist[edge];
-                    return forwardDistToNode + backwardDistToNode;
+                double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode - 1]);
+                double forwardF = distForward[forwardEdge] + forwardH;
+
+                if (apqForward.contains(forwardEdge)) {
+                    apqForward.decreaseKey(forwardEdge, forwardF);
+                } else {
+                    apqForward.insertNode(forwardEdge, forwardF);
                 }
             }
         }
 
-        // Check for meeting point
-        for (double node : forwardVisited) {
-            if (backwardVisited.find(node) != backwardVisited.end()) {
-                double forwardDistToNode = forwardDist[node];
-                double backwardDistToNode = backwardDist[node];
-                return forwardDistToNode + backwardDistToNode;
+        for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
+            double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
+            double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
+
+            if (distBackward[backwardNode] + backwardWeight < distBackward[backwardEdge]) {
+                distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
+
+                double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode - 1]);
+                double backwardF = distBackward[backwardEdge] + backwardH;
+
+                if (apqBackward.contains(backwardEdge)) {
+                    apqBackward.decreaseKey(backwardEdge, backwardF);
+                } else {
+                    apqBackward.insertNode(backwardEdge, backwardF);
+                }
             }
         }
     }
 
-    std::cout << "Paths did not meet" << std::endl;
-    return -1;
+    if (meetingNode != -1) {
+        double shortestPath = distForward[meetingNode] + distBackward[meetingNode];
+        if (shortestPath < bestPath)
+            bestPath = shortestPath;
+    }
+
+    if (bestPath == INT_MAX) {
+        return -1;
+    }
+
+    return bestPath;
 }
+
+
+
 double AStarBidirectionalSaving(Graph myGraph, double sourceNode, double targetNode, const std::string& exploredFileName, const std::string& pathFileName) {
     APQ forwardAPQ = APQ();
     APQ backwardAPQ = APQ();

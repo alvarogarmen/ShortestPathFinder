@@ -53,7 +53,7 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
             double edge = myGraph.edges[edgeIndex] - 1;
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
 
-            if (dist[currentNode] + weight + estimate(currentNode, edge, potentials) < dist[edge] + estimate(currentNode, edge, potentials)) {
+            if (dist[currentNode] + weight + estimate(currentNode, targetNode, potentials) < dist[edge] + estimate(currentNode, targetNode, potentials)) {
                 dist[edge] = dist[currentNode] + weight;
 
                 double h = estimate(edge , targetNode, potentials);

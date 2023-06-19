@@ -79,49 +79,6 @@ std::vector<std::vector<double>> precomputePotentials(Graph myGraph, const std::
 
 
 
-std::unordered_map<int, double> computeLandmarkDistances(Graph myGraph, std::vector<double> landmarks, int numLandmarks){
-    //Initialize the landmarkDistances
-    std::unordered_map<int, double> landmarkDistances;
-
-    // Compute distances from landmarks to all other nodes using Dijkstra's algorithm
-    for (double landmark : landmarks) {
-        std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
-        std::set<double> visited;
-        APQ apq;
-
-        apq.insertNode(landmark-1, 0);
-        dist[landmark-1] = 0;
-
-        while (!apq.isEmpty()) {
-            double currentNode = apq.getMin().first;
-            visited.insert(currentNode);
-            apq.popMin();
-
-            double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
-            double endEdge = myGraph.edgeStarts[currentNode];
-
-            for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
-                double edge = myGraph.edges[edgeIndex] - 1;
-                double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
-
-                if (dist[currentNode] + weight < dist[edge]) {
-                    dist[edge] = dist[currentNode] + weight;
-
-                    if (visited.find(edge) == visited.end()) {
-                        apq.insertNode(edge, dist[edge]);
-                    }
-                }
-            }
-        }
-
-        // Store the landmark distances
-        for (int i = 0; i < dist.size(); i++) {
-            landmarkDistances[i + 1] += dist[i];
-        }
-    }
-    std::cout<<Dijkstra(myGraph, landmarks[3], 1000)<<" vs landmarkdistances"<<landmarkDistances[3,1000]<<std::endl;
-    return landmarkDistances;
-}
 std::unordered_map<int, double> computeLandmarkDistancesRandom(Graph myGraph, int numLandmarks) {
     //Initialize the landmarkDistances
     std::unordered_map<int, double> landmarkDistances;

@@ -34,6 +34,7 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
 
     //A*
     callAStar(myGraph, sourceNode, targetNode);
+    //callAStarBidirectional(myGraph, sourceNode, targetNode);
 
     //Saving A* and Dijkstra
     DijkstraSaving(myGraph, sourceNode, targetNode);
@@ -47,13 +48,13 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     std::cout<<"STRANGE"<<std::endl;
 
     //ALT Bidirectional Avoid
-    callALTBiAvoid(myGraph, sourceNode, targetNode, numLandmarks);
+    //callALTBiAvoid(myGraph, sourceNode, targetNode, numLandmarks);
     //ALT with MaxDegree (avoiding) Landmarks
    //callALTMaxDegree(myGraph, sourceNode, targetNode, numLandmarks);
 
     //callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks);
 
-    callHHS(myGraph, sourceNode, targetNode, numLandmarks);
+    //callHHS(myGraph, sourceNode, targetNode, numLandmarks);
 }
 
 void processInputForPlot(double sourceNode, double targetNode, std::string graph){
