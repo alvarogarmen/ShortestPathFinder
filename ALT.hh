@@ -56,7 +56,7 @@ double ALT(Graph myGraph, double sourceNode, double targetNode, const std::vecto
             if (dist[currentNode] + weight + estimate(currentNode, edge, potentials) < dist[edge] + estimate(currentNode, edge, potentials)) {
                 dist[edge] = dist[currentNode] + weight;
 
-                double h = estimate(edge + 1, targetNode, potentials);
+                double h = estimate(edge, targetNode, potentials);
                 double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {

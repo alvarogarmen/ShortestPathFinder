@@ -39,7 +39,7 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     DijkstraSaving(myGraph, sourceNode, targetNode);
     AStarSaving(myGraph, sourceNode, targetNode);
     std::cout<<"HERE"<<std::endl;
-    callALTFurthest(myGraph, sourceNode, targetNode);
+    //callALTFurthest(myGraph, sourceNode, targetNode);
     //Bidirectional A*
     //callAStarBidirectional(myGraph, sourceNode, targetNode);
     //ALT Avoid
