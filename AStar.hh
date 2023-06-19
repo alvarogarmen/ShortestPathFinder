@@ -12,7 +12,7 @@
 #include <cmath>
 #include <set>
 
-double AStar(Graph myGraph, double sourceNode, double targetNode) {
+double AStar(Graph& myGraph, double& sourceNode, double& targetNode) {
     APQ apq = APQ();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);

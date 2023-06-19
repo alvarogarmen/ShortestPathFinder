@@ -169,7 +169,7 @@ void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int nu
 void callALTBiAvoid(Graph myGraph, double sourceNode, double targetNode, int numLandmarks){
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<double> landmarks = avoidLandmarkSelection(myGraph, numLandmarks);
-    std::vector<std::vector<double>> potentials = precomputePotentials(myGraph, landmarks);
+    std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarks);
     //Stop the clock
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time = end - start;

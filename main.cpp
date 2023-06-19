@@ -47,7 +47,7 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     std::cout<<"STRANGE"<<std::endl;
 
     //ALT Bidirectional Avoid
-    //callALTBiAvoid(myGraph, sourceNode, targetNode, numLandmarks);
+    callALTBiAvoid(myGraph, sourceNode, targetNode, numLandmarks);
     //ALT with MaxDegree (avoiding) Landmarks
    //callALTMaxDegree(myGraph, sourceNode, targetNode, numLandmarks);
 

@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-double estimate(double source, double target, const std::vector<std::vector<double>>& potentials) {
+double estimate(double& source, double& target, const std::vector<std::vector<double>>& potentials) {
     double potential = -1;
 
     for (int i = 0; i < potentials[0].size(); i++) {
@@ -29,7 +29,7 @@ double estimate(double source, double target, const std::vector<std::vector<doub
 }
 
 
-double ALT(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
+double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
     APQ apq = APQ();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -56,7 +56,7 @@ double ALT(Graph myGraph, double sourceNode, double targetNode, const std::vecto
             if (dist[currentNode] + weight + estimate(currentNode, edge, potentials) < dist[edge] + estimate(currentNode, edge, potentials)) {
                 dist[edge] = dist[currentNode] + weight;
 
-                double h = estimate(edge, targetNode, potentials);
+                double h = estimate(edge , targetNode, potentials);
                 double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {
