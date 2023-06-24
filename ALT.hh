@@ -15,10 +15,12 @@
 
 double estimate(double& source, double& target, const std::vector<std::vector<double>>& potentials) {
     double potential = -1;
+    //TODO: Inverted!!
 
-    for (int i = 0; i < potentials[0].size(); i++) {
-        double potentialPlus = potentials[target][i] - potentials[source][i];
-        double potentialMinus = potentials[source][i] - potentials[target][i];
+    for (int i = 0; i < potentials.size(); i++) {
+
+        double potentialPlus = potentials[i][target] - potentials[i][source];
+        double potentialMinus = potentials[i][source] - potentials[i][target];
         if(potential < potentialMinus or potential < potentialPlus){
             potential = std::max(potentialMinus, potentialPlus);
         }
@@ -38,13 +40,9 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
     dist[sourceNode - 1] = 0;
 
     while (!apq.isEmpty()) {
-        double currentNode = apq.getMin().first;
+        double currentNode = apq.popMin();
         visited.insert(currentNode);
-        apq.popMin();
 
-        if (currentNode == targetNode - 1) {
-            return dist[targetNode - 1];
-        }
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];

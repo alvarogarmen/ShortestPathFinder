@@ -21,9 +21,9 @@ double AStar(Graph& myGraph, double& sourceNode, double& targetNode) {
     dist[sourceNode - 1] = 0;
 
     while (!apq.isEmpty()) {
-        double currentNode = apq.getMin().first;
+        double currentNode = apq.popMin();
         visited.insert(currentNode);
-        apq.popMin();
+
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];

@@ -24,14 +24,13 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
     double meetingNode = -1;
 
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
-        double forwardNode = apqForward.getMin().first;
-        double backwardNode = apqBackward.getMin().first;
+        double forwardNode = apqForward.popMin();
+        double backwardNode = apqBackward.popMin();
 
         visitedForward.insert(forwardNode);
         visitedBackward.insert(backwardNode);
 
-        apqForward.popMin();
-        apqBackward.popMin();
+
 
         if (forwardNode == backwardNode) {
             meetingNode = forwardNode;
@@ -117,14 +116,13 @@ double AStarBidirectionalSaving(Graph myGraph, double sourceNode, double targetN
     std::ofstream pathFile(pathFileName);
 
     while (!forwardAPQ.isEmpty() && !backwardAPQ.isEmpty()) {
-        double forwardCurrentNode = forwardAPQ.getMin().first;
-        double backwardCurrentNode = backwardAPQ.getMin().first;
+        double forwardCurrentNode = forwardAPQ.popMin();
+        double backwardCurrentNode = backwardAPQ.popMin();
 
         forwardVisited.insert(forwardCurrentNode);
         backwardVisited.insert(backwardCurrentNode);
 
-        forwardAPQ.popMin();
-        backwardAPQ.popMin();
+
 
         double forwardStartEdge = (forwardCurrentNode > 0) ? myGraph.edgeStarts[forwardCurrentNode - 1] + 1 : 0;
         double forwardEndEdge = myGraph.edgeStarts[forwardCurrentNode];

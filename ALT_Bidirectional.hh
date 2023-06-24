@@ -15,14 +15,13 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     double meetingNode = -1;
 
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
-        double forwardNode = apqForward.getMin().first;
-        double backwardNode = apqBackward.getMin().first;
+        double forwardNode = apqForward.popMin();
+        double backwardNode = apqBackward.popMin();
 
         visitedForward.insert(forwardNode);
         visitedBackward.insert(backwardNode);
 
-        apqForward.popMin();
-        apqBackward.popMin();
+
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
             return bestPath;

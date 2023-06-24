@@ -32,9 +32,9 @@ double Dijkstra(Graph& myGraph, double& sourceNode, double& targetNode){
     //Main loop
     while(!apq.isEmpty()){
         //Active node. Note that if its already in the set, inserting doesn't do anything
-        double currentNode = apq.getMin().first;       //The getter doesn't pop the minimum element
+        double currentNode = apq.popMin();
         visited.insert(currentNode);
-        apq.popMin();                               //It is popped here
+
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we outDegree with the node 0, we'll outDegree with
         double endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
@@ -90,9 +90,9 @@ std::vector<double> DijkstraToALL(Graph myGraph, double sourceNode){
     //Main loop
     while(!apq.isEmpty()){
         //Active node. Note that if its already in the set, inserting doesn't do anything
-        double currentNode = apq.getMin().first;       //The getter doesn't pop the minimum element
+        double currentNode = apq.popMin();       //The getter doesn't pop the minimum element
         visited.insert(currentNode);
-        apq.popMin();                               //It is popped here
+
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode-1]+1 : 0;    //Ternary operation: if we outDegree with the node 0, we'll outDegree with
         double endEdge = myGraph.edgeStarts[currentNode];                                  //the first edge, otherwise, it is taken from the adjacency vector
@@ -149,14 +149,12 @@ double BidirectionalDijkstra(Graph myGraph, double sourceNode, double targetNode
     // Main loop
     while (!forwardAPQ.isEmpty() && !backwardAPQ.isEmpty()) {
         // Active node for forward search
-        double forwardNode = forwardAPQ.getMin().first;
+        double forwardNode = forwardAPQ.popMin();
         forwardVisited.insert(forwardNode);
-        forwardAPQ.popMin();
 
         // Active node for backward search
-        double backwardNode = backwardAPQ.getMin().first;
+        double backwardNode = backwardAPQ.popMin();
         backwardVisited.insert(backwardNode);
-        backwardAPQ.popMin();
 
         // Start and end edges for forward search
         double forwardStartEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;

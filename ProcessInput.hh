@@ -84,7 +84,7 @@ void callAStarBidirectional(Graph myGraph, double sourceNode, double targetNode)
     ALTSaving(myGraph, sourceNode, targetNode, landmarkDistances, "Max_explored_nodes.txt", "Max_path.txt");
 }*/
 
-void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLandmarks){
+void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks){
 
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<double> landmarks = avoidLandmarkSelection(myGraph, numLandmarks);
@@ -140,13 +140,24 @@ std::vector<double> loadLandmarks(std::string graph){
     file.close();
     return vec;
 }
-void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int numLandmarks){
+void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks, std::string filename){
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<double> landmarksFurthest =computeFurthestLandmarks(myGraph, numLandmarks, "Landmarks_Furthest");
-    std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFurthest);
+    std::vector<std::vector<double>> potentials;
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end - start;
-    std::cout<<"ALT Furthest preprocessing took: "<<time.count()<<std::endl;
+    std::chrono::duration<double> time;
+    if(newLandmarks==0){
+        std::vector<double> landmarks=loadLandmarks(filename);
+        potentials = precomputePotentialsEuclidian(myGraph, landmarks);
+    }
+    else if(newLandmarks==1){
+        start = std::chrono::high_resolution_clock::now();
+        std::vector<double> landmarksFurthest =computeFurthestLandmarks(myGraph, numLandmarks, "Landmarks_Furthest");
+        std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFurthest);
+        end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time = end - start;
+        std::cout<<"ALT Furthest preprocessing took: "<<time.count()<<std::endl;
+    }
+
 
     //ALT Furthest Query
     start = std::chrono::high_resolution_clock::now();

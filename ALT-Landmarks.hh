@@ -19,16 +19,17 @@
 
 std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
     std::vector<std::vector<double>> potentials(myGraph.getNodes().size(), std::vector<double>(landmarks.size()));
+    std::vector<std::vector<double>> potentialsInverted((landmarks.size()), std::vector<double>(myGraph.getNodes().size()));
 
-
-    for (double i = 0; i<potentials.size(); i++){
-        for(int j = 0; j<landmarks.size(); j++){
-            potentials[i][j]=distance(myGraph.getNode(i), myGraph.getNode(landmarks[j]));
+    for (double i = 0; i<landmarks.size(); i++){
+        for(int j = 0; j<potentialsInverted.size(); j++){
+            potentials[i]= DijkstraToALL(myGraph, landmarks[i]);
+            //potentials[i][j]=distance(myGraph.getNode(i), myGraph.getNode(landmarks[j]));
 
         }
     }
 
-    return potentials;
+    return potentialsInverted;
 }
 std::vector<std::vector<double>> precomputeLandmarkToNodes(Graph myGraph, const std::vector<double>& landmarks){
     std::vector<std::vector<double>> landmarkToNodes(landmarks.size(), std::vector<double>(myGraph.getNodes().size()));
@@ -97,9 +98,8 @@ std::unordered_map<int, double> computeLandmarkDistancesRandom(Graph myGraph, in
         dist[landmark.nodeId - 1] = 0;
 
         while (!apq.isEmpty()) {
-            double currentNode = apq.getMin().first;
+            double currentNode = apq.popMin();
             visited.insert(currentNode);
-            apq.popMin();
 
             double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
             double endEdge = myGraph.edgeStarts[currentNode];

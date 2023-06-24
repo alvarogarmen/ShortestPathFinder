@@ -26,10 +26,10 @@ double AStarSaving(Graph myGraph, double sourceNode, double targetNode) {
     pathFile.open("AStar_path.txt");                // Open path file
 
     while (!apq.isEmpty()) {
-        double currentNode = apq.getMin().first;
+        double currentNode = apq.popMin();
         visited.insert(currentNode);
         exploredFile << myGraph.getNode(currentNode).coordinateX << " " << myGraph.getNode(currentNode).coordinateY << std::endl;  // Write explored node to the file
-        apq.popMin();
+
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];
