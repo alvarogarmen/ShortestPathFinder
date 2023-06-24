@@ -18,17 +18,11 @@
 #include <random>
 
 std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
-    std::vector<std::vector<double>> potentials(myGraph.getNodes().size(), std::vector<double>(landmarks.size()));
-    std::vector<std::vector<double>> potentialsInverted((landmarks.size()), std::vector<double>(myGraph.getNodes().size()));
-
+    std::vector<std::vector<double>> potentialsInverted;
     for (double i = 0; i<landmarks.size(); i++){
-        for(int j = 0; j<potentialsInverted.size(); j++){
-            potentials[i]= DijkstraToALL(myGraph, landmarks[i]);
-            //potentials[i][j]=distance(myGraph.getNode(i), myGraph.getNode(landmarks[j]));
+        potentialsInverted.push_back(DijkstraToALL(myGraph, landmarks[i]));
 
-        }
     }
-
     return potentialsInverted;
 }
 std::vector<std::vector<double>> precomputeLandmarkToNodes(Graph myGraph, const std::vector<double>& landmarks){
@@ -210,7 +204,7 @@ std::vector<double> selectLandmarks(Graph myGraph, double numLandmarks) {
     return landmarks;
 }
 
-std::vector<double> avoidLandmarkSelection(Graph myGraph, int numLandmarks) {
+std::vector<double> avoidLandmarkSelection(Graph myGraph, int numLandmarks, std::string filename) {
     std::vector<double> landmarks;
     std::vector<Node> nodes = myGraph.getNodes();
     std::unordered_set<double> selectedNodes;  // To keep track of selected landmarks
@@ -285,6 +279,20 @@ std::vector<double> avoidLandmarkSelection(Graph myGraph, int numLandmarks) {
         landmarks.push_back(nextLandmark);
         selectedNodes.insert(nextLandmark);
     }
+    //save the landmarks to a file
+    std::ofstream file(filename);
+
+    for (double landmark : landmarks) {
+        file << landmark << std::endl;
+    }
+    file.close();
+    std::cout<<"Writing landmarks to "<<filename+"coord"<<std::endl;
+    std::ofstream file2(filename+"coord");
+
+    for (double landmark : landmarks) {
+        file2 << myGraph.getNode(landmark).coordinateX << " "<<myGraph.getNode(landmark).coordinateY << std::endl;
+    }
+    file2.close();
 
     return landmarks;
 }

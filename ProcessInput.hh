@@ -17,6 +17,22 @@
 #include "HighwayHierarchiesStar.hh"
 #include "AStarBidirectional.hh"
 
+std::vector<double> loadLandmarks(std::string graph){
+    std::vector<double> vec;
+    std::ifstream file("landmarks"+graph+".txt");
+    if (!file.is_open()) {
+        std::cerr << "Error opening file: " << "landmarks.txt" << std::endl;
+        return vec;
+    }
+
+    double value;
+    while (file >> value) {
+        vec.push_back(value);
+    }
+
+    file.close();
+    return vec;
+}
 void callDijkstra(Graph myGraph, double sourceNode, double targetNode){
     // Call Dijkstra and outDegree timer
     auto start = std::chrono::high_resolution_clock::now();
@@ -84,62 +100,85 @@ void callAStarBidirectional(Graph myGraph, double sourceNode, double targetNode)
     ALTSaving(myGraph, sourceNode, targetNode, landmarkDistances, "Max_explored_nodes.txt", "Max_path.txt");
 }*/
 
-void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks){
-
+void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks, std::string filename){
     auto start = std::chrono::high_resolution_clock::now();
-    std::vector<double> landmarks = avoidLandmarkSelection(myGraph, numLandmarks);
-    std::cout<<"Landmark Selection successful"<<std::endl;
-    std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarks);
-    std::cout<<"Precomputation Complete"<<std::endl;
-    //Stop the clock
+    std::vector<std::vector<double>> potentials;
     auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end - start;
-    // Give out the time
-    std::cout<<"ALT Avoid preprocessing took:"<<time.count()<<"s"<<std::endl;
+    std::chrono::duration<double> time;
+    if(newLandmarks==0){
+        std::vector<double> landmarks=loadLandmarks(filename);
+        potentials = precomputePotentialsEuclidian(myGraph, landmarks);
+        std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;
+        std::cout<<"Precomputation Complete"<<std::endl;
 
-    // Start measuring the execution time
-    start = std::chrono::high_resolution_clock::now();
+        // Start measuring the execution time
+        start = std::chrono::high_resolution_clock::now();
+        // Run ALT using the precomputed potentials
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
 
-    // Run ALT using the precomputed potentials
-    double shortestDistance = ALT(myGraph, sourceNode, targetNode,potentials);
+        // Stop measuring the execution time
+        end = std::chrono::high_resolution_clock::now();
 
-    // Stop measuring the execution time
-    end = std::chrono::high_resolution_clock::now();
+        // Compute the duration in milliseconds
+        time = end - start;
 
-    // Compute the duration in milliseconds
-    time = end - start;
+        // Print the shortest distance and execution time
+        std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
+        std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
+        std::cout<<"Saved"<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
+        end = std::chrono::high_resolution_clock::now();
+        time = end - start;
+        std::cout<<"ALTBI: "<<ALTBI<<std::endl;
+        std::cout<<"Took :"<<time.count()<<std::endl;
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoidBi_explored");
+    }
+    else if(newLandmarks==1){
+        std::cout<<"No loading"<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        std::vector<double> landmarksAvoid =avoidLandmarkSelection(myGraph, numLandmarks, "Landmarks_Avoid");
+        for (double land : landmarksAvoid){
+            std::cout<<land<<std::endl;
+        }
 
-    // Print the shortest distance and execution time
-    std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
-    std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
-    ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
-    std::cout<<"Saved"<<std::endl;
-    start = std::chrono::high_resolution_clock::now();
-    double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    std::cout<<"ALTBI: "<<ALTBI<<std::endl;
-    std::cout<<"Took :"<<time.count()<<std::endl;
+        std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksAvoid);
+        std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;
+        end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time = end - start;
+        std::cout<<"ALT Avoid preprocessing took: "<<time.count()<<std::endl;
+        std::cout<<"Precomputation Complete"<<std::endl;
+
+        // Start measuring the execution time
+        start = std::chrono::high_resolution_clock::now();
+        // Run ALT using the precomputed potentials
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
+
+        // Stop measuring the execution time
+        end = std::chrono::high_resolution_clock::now();
+
+        // Compute the duration in milliseconds
+        time = end - start;
+
+        // Print the shortest distance and execution time
+        std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
+        std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
+        std::cout<<"Saved"<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
+        end = std::chrono::high_resolution_clock::now();
+        time = end - start;
+        std::cout<<"ALTBI: "<<ALTBI<<std::endl;
+        std::cout<<"Took :"<<time.count()<<std::endl;
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoidBi_explored");
+    }
 
 }
 
 
-std::vector<double> loadLandmarks(std::string graph){
-    std::vector<double> vec;
-    std::ifstream file("landmarks"+graph+".txt");
-    if (!file.is_open()) {
-        std::cerr << "Error opening file: " << "landmarks.txt" << std::endl;
-        return vec;
-    }
 
-    double value;
-    while (file >> value) {
-        vec.push_back(value);
-    }
-
-    file.close();
-    return vec;
-}
 void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks, std::string filename){
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<std::vector<double>> potentials;
@@ -173,28 +212,7 @@ void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int nu
 
 }
 
-void callALTBiAvoid(Graph myGraph, double sourceNode, double targetNode, int numLandmarks){
-    auto start = std::chrono::high_resolution_clock::now();
-    std::vector<double> landmarks = avoidLandmarkSelection(myGraph, numLandmarks);
-    std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarks);
-    //Stop the clock
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end - start;
-    // Give out the time
-    std::cout<<"ALT Avoid preprocessing took:"<<time.count()<<"s"<<std::endl;
 
-    //ALT query with MaxDegree (avoiding) Landmarks
-    start = std::chrono::high_resolution_clock::now();
-    double Dis = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the distance and the time
-    std::cout<<"ALT Bidirectional Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
-    std::cout<<"ALT Bidirectional Avoid query took: "<<time.count()<<std::endl;
-    //Save the results
-    ALTSaving(myGraph, sourceNode, targetNode, potentials, "BiAvoid_explored_nodes.txt", "BiAvoid_path.txt");
-}
 
 void callHHS(Graph myGraph, double sourceNode, double targetNode, int numLandmarks){
     auto start = std::chrono::high_resolution_clock::now();

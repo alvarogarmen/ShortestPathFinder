@@ -66,7 +66,7 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
                     return dist[edge];
                 }
 
-                double h = estimate(edge, targetNode, potentials);
+                double h = estimate(edge, targetNode-1, potentials);
                 double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {

@@ -13,12 +13,10 @@
 #include <unordered_map>
 #include <algorithm>
 
-double estimate(double& source, double& target, const std::vector<std::vector<double>>& potentials) {
-    double potential = -1;
+double estimate(double& source, double target, const std::vector<std::vector<double>>& potentials) {
+    double potential=0;
     //TODO: Inverted!!
-
     for (int i = 0; i < potentials.size(); i++) {
-
         double potentialPlus = potentials[i][target] - potentials[i][source];
         double potentialMinus = potentials[i][source] - potentials[i][target];
         if(potential < potentialMinus or potential < potentialPlus){
@@ -51,11 +49,16 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
             double edge = myGraph.edges[edgeIndex] - 1;
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
 
-            if (dist[currentNode] + weight + estimate(currentNode, targetNode, potentials) < dist[edge] + estimate(currentNode, targetNode, potentials)) {
+            if (dist[currentNode]+ weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
 
-                double h = estimate(edge , targetNode, potentials);
-                double f = dist[edge] + h;
+                if (edge == targetNode-1){
+                    std::cout<<"Here"<<std::endl;
+                    return dist[edge];
+                }
+
+                double h = estimate(edge, targetNode-1, potentials);
+                double f = dist[edge]+h;
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f);

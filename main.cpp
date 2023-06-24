@@ -44,7 +44,7 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     //Bidirectional A*
     //callAStarBidirectional(myGraph, sourceNode, targetNode);
     //ALT Avoid and Bidirectional with Avoid Landmarks
-    callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks);
+    callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, "Landmarks_Avoid");
     std::cout<<"STRANGE"<<std::endl;
     callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph);
 
