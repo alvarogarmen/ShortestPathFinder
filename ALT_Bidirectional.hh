@@ -42,7 +42,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
-            if (distForward[forwardNode] + forwardWeight + estimate(forwardNode, targetNode, potentials) < distForward[forwardEdge] + estimate(forwardNode, targetNode, potentials)) {
+            if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
                 double forwardH = estimate(forwardEdge, targetNode, potentials);
@@ -60,7 +60,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
-            if (distBackward[backwardNode] + backwardWeight + estimate(backwardEdge, sourceNode, potentials) < distBackward[backwardEdge] + estimate(backwardEdge, sourceNode, potentials)) {
+            if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
                 double backwardH = estimate(backwardEdge, sourceNode, potentials);
@@ -140,7 +140,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
-            if (distForward[forwardNode] + forwardWeight + estimate(forwardNode, targetNode, potentials) < distForward[forwardEdge] + estimate(forwardNode, targetNode, potentials)) {
+            if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
                 double forwardH = estimate(forwardEdge, targetNode, potentials);
@@ -159,7 +159,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
-            if (distBackward[backwardNode] + backwardWeight + estimate(backwardEdge, sourceNode, potentials) < distBackward[backwardEdge] + estimate(backwardEdge, sourceNode, potentials)) {
+            if (distBackward[backwardNode] + backwardWeight < distBackward[backwardEdge]) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
                 double backwardH = estimate(backwardEdge, sourceNode, potentials);

@@ -117,102 +117,93 @@ std::vector<double> DijkstraToALL(Graph myGraph, double sourceNode) {
     return dist;
 }
 
-double BidirectionalDijkstra(Graph myGraph, double sourceNode, double targetNode) {
-    // Get priority queues for forward and backward searches
-    APQ forwardAPQ = APQ();
-    APQ backwardAPQ = APQ();
+double BidirectionalDijkstra(Graph& myGraph, double& sourceNode, double& targetNode) {
+    APQ apqForward = APQ();
+    APQ apqBackward = APQ();
+    std::set<double> visitedForward;
+    std::set<double> visitedBackward;
+    std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
-    // Keep track of visited nodes in forward and backward searches
-    std::set<double> forwardVisited;
-    std::set<double> backwardVisited;
+    apqForward.insertNode(sourceNode - 1, 0);
+    apqBackward.insertNode(targetNode - 1, 0);
+    distForward[sourceNode - 1] = 0;
+    distBackward[targetNode - 1] = 0;
 
-    // Initialize distances to infinity for both searches
-    std::vector<double> forwardDist(myGraph.nodes.size(), INT_MAX);
-    std::vector<double> backwardDist(myGraph.nodes.size(), INT_MAX);
+    double bestPath = INT_MAX;
+    double meetingNode = -1;
 
-    // Push the source node with distance 0 into the forward APQ
-    forwardAPQ.insertNode(sourceNode - 1, 0);
-    forwardDist[sourceNode - 1] = 0;
+    while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
+        double forwardNode = apqForward.popMin();
+        double backwardNode = apqBackward.popMin();
 
-    // Push the target node with distance 0 into the backward APQ
-    backwardAPQ.insertNode(targetNode - 1, 0);
-    backwardDist[targetNode - 1] = 0;
+        visitedForward.insert(forwardNode);
+        visitedBackward.insert(backwardNode);
 
-    double shortestPath = INT_MAX;
 
-    // Main loop
-    while (!forwardAPQ.isEmpty() && !backwardAPQ.isEmpty()) {
-        // Active node for forward search
-        double forwardNode = forwardAPQ.popMin();
-        forwardVisited.insert(forwardNode);
 
-        // Active node for backward search
-        double backwardNode = backwardAPQ.popMin();
-        backwardVisited.insert(backwardNode);
+        if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
+            return bestPath;
+        }
 
-        // Start and end edges for forward search
-        double forwardStartEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
-        double forwardEndEdge = myGraph.edgeStarts[forwardNode];
+        if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
+            bestPath = distForward[forwardNode] + distBackward[forwardNode];
+            meetingNode = forwardNode;
+        }
 
-        // Start and end edges for backward search
-        double backwardStartEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
-        double backwardEndEdge = myGraph.edgeStarts[backwardNode];
+        double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
+        double endForwardEdge = myGraph.edgeStarts[forwardNode];
 
-        // Relax edges for forward search
-        for (double forwardEdgeIndex = forwardStartEdge; forwardEdgeIndex <= forwardEndEdge; forwardEdgeIndex++) {
+        double startBackwardEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
+        double endBackwardEdge = myGraph.edgeStarts[backwardNode];
+
+        for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
-            if (forwardDist[forwardNode] + forwardWeight < forwardDist[forwardEdge]) {
-                forwardDist[forwardEdge] = forwardDist[forwardNode] + forwardWeight;
+            if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
+                distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                // Check if the node is already visited in the backward search
-                if (backwardVisited.find(forwardEdge) != backwardVisited.end()) {
-                    double pathLength = forwardDist[forwardEdge] + backwardDist[forwardEdge];
-                    if (pathLength < shortestPath) {
-                        shortestPath = pathLength;
-                        // Return immediately if shortest path is found
-                        return shortestPath;
-                    }
-                }
+                double forwardF = distForward[forwardEdge];
 
-                if (forwardAPQ.contains(forwardEdge)) {
-                    forwardAPQ.decreaseKey(forwardEdge, forwardDist[forwardEdge]);
+                if (apqForward.contains(forwardEdge)) {
+                    apqForward.decreaseKey(forwardEdge, forwardF);
                 } else {
-                    forwardAPQ.insertNode(forwardEdge, forwardDist[forwardEdge]);
+                    apqForward.insertNode(forwardEdge, forwardF);
                 }
             }
         }
 
-        // Relax edges for backward search
-        for (double backwardEdgeIndex = backwardStartEdge; backwardEdgeIndex <= backwardEndEdge; backwardEdgeIndex++) {
+        for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
-            if (backwardDist[backwardNode] + backwardWeight < backwardDist[backwardEdge]) {
-                backwardDist[backwardEdge] = backwardDist[backwardNode] + backwardWeight;
+            if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
+                distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                // Check if the node is already visited in the forward search
-                if (forwardVisited.find(backwardEdge) != forwardVisited.end()) {
-                    double pathLength = forwardDist[backwardEdge] + backwardDist[backwardEdge];
-                    if (pathLength < shortestPath) {
-                        shortestPath = pathLength;
-                        // Return immediately if shortest path is found
-                        return shortestPath;
-                    }
-                }
 
-                if (backwardAPQ.contains(backwardEdge)) {
-                    backwardAPQ.decreaseKey(backwardEdge, backwardDist[backwardEdge]);
+                double backwardF = distBackward[backwardEdge];
+
+                if (apqBackward.contains(backwardEdge)) {
+                    apqBackward.decreaseKey(backwardEdge, backwardF);
                 } else {
-                    backwardAPQ.insertNode(backwardEdge, backwardDist[backwardEdge]);
+                    apqBackward.insertNode(backwardEdge, backwardF);
                 }
             }
         }
     }
 
-    std::cout << "No path found from source: " << sourceNode << " to target: " << targetNode << std::endl;
-    return -1; // To symbolize that there is no path
+    if (meetingNode != -1) {
+        double shortestPath = distForward[meetingNode] + distBackward[meetingNode];
+        if (shortestPath < bestPath)
+            bestPath = shortestPath;
+    }
+
+    if (bestPath == INT_MAX) {
+        return -1;
+    }
+
+    return bestPath;
 }
 
 

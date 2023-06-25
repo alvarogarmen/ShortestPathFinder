@@ -17,9 +17,9 @@
 #include "HighwayHierarchiesStar.hh"
 #include "AStarBidirectional.hh"
 
-std::vector<double> loadLandmarks(std::string graph){
+std::vector<double> loadLandmarks(std::string filename){
     std::vector<double> vec;
-    std::ifstream file("landmarks"+graph+".txt");
+    std::ifstream file(filename);
     if (!file.is_open()) {
         std::cerr << "Error opening file: " << "landmarks.txt" << std::endl;
         return vec;
@@ -62,21 +62,7 @@ void callAStar(Graph myGraph, double sourceNode, double targetNode){
     std::cout<<"A* took: "<<time.count()<<"s"<<std::endl;
 }
 
-void callAStarBidirectional(Graph myGraph, double sourceNode, double targetNode){
-    auto start = std::chrono::high_resolution_clock::now();
-    double Dis = AStarBidirectional(myGraph, sourceNode, targetNode);
-    //Stop the clock
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double> time = end - start;
-    // Give out the distance and the time
-    std::cout<<"A* Bidirectional from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
-    std::cout<<"A* Bidirectional took: "<<time.count()<<"s"<<std::endl;
-    std::string sourceString = std::to_string(sourceNode);
-    std::string targetString = std::to_string(targetNode);
-    std::string exploredFile = "AStar_Bidi_"+sourceString+"_"+targetString+"_explored";
-    std::string pathFile = "AStar_Bidi_"+sourceString+"_"+targetString+"_path";
-   // AStarBidirectionalSaving(myGraph, sourceNode, targetNode, "AStarBidi_explored", "AStarBidi_path");
-}
+
 /*void callALTMaxDegree(Graph myGraph, double sourceNode, double targetNode, int numLandmarks){
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<double> Landmarks = selectLandmarks(myGraph, numLandmarks);
@@ -106,7 +92,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time;
     if(newLandmarks==0){
-        std::vector<double> landmarks=loadLandmarks(filename);
+        std::vector<double> landmarks=loadLandmarks("Landmarks_Avoid");
         potentials = precomputePotentialsEuclidian(myGraph, landmarks);
         std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;
         std::cout<<"Precomputation Complete"<<std::endl;
@@ -131,7 +117,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
-        std::cout<<"ALTBI: "<<ALTBI<<std::endl;
+        std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
         ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoidBi_explored");
     }
@@ -170,7 +156,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
-        std::cout<<"ALTBI: "<<ALTBI<<std::endl;
+        std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
         ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoidBi_explored");
     }
@@ -185,30 +171,74 @@ void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int nu
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> time;
     if(newLandmarks==0){
-        std::vector<double> landmarks=loadLandmarks(filename);
+        std::vector<double> landmarks=loadLandmarks("Landmarks_Furthest");
         potentials = precomputePotentialsEuclidian(myGraph, landmarks);
+        std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;
+        std::cout<<"Precomputation Complete"<<std::endl;
+
+        // Start measuring the execution time
+        start = std::chrono::high_resolution_clock::now();
+        // Run ALT using the precomputed potentials
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
+
+        // Stop measuring the execution time
+        end = std::chrono::high_resolution_clock::now();
+
+        // Compute the duration in milliseconds
+        time = end - start;
+
+        // Print the shortest distance and execution time
+        std::cout<<"ALT Furthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
+        std::cout << "ALT Furthest took: " << time.count()<< "s" << std::endl;
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFurthest_explored", "ALTFurthest_path");
+        std::cout<<"Saved"<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
+        end = std::chrono::high_resolution_clock::now();
+        time = end - start;
+        std::cout<<"Furthest ALTBI: "<<ALTBI<<std::endl;
+        std::cout<<"Took :"<<time.count()<<std::endl;
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTFurthestBi_explored");
     }
     else if(newLandmarks==1){
+        std::cout<<"No loading"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        std::vector<double> landmarksFurthest =computeFurthestLandmarks(myGraph, numLandmarks, "Landmarks_Furthest");
+        std::vector<double> landmarksFurthest =avoidLandmarkSelection(myGraph, numLandmarks, "Landmarks_Furthest");
+        for (double land : landmarksFurthest){
+            std::cout<<land<<std::endl;
+        }
+
         std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFurthest);
+        std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;
         end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time = end - start;
         std::cout<<"ALT Furthest preprocessing took: "<<time.count()<<std::endl;
+        std::cout<<"Precomputation Complete"<<std::endl;
+
+        // Start measuring the execution time
+        start = std::chrono::high_resolution_clock::now();
+        // Run ALT using the precomputed potentials
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
+
+        // Stop measuring the execution time
+        end = std::chrono::high_resolution_clock::now();
+
+        // Compute the duration in milliseconds
+        time = end - start;
+
+        // Print the shortest distance and execution time
+        std::cout<<"ALT Furthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
+        std::cout << "ALT Furthest took: " << time.count()<< "s" << std::endl;
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFurthest_explored", "ALTFurthest_path");
+        std::cout<<"Saved"<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
+        end = std::chrono::high_resolution_clock::now();
+        time = end - start;
+        std::cout<<"Furthest ALTBI: "<<ALTBI<<std::endl;
+        std::cout<<"Took :"<<time.count()<<std::endl;
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTFurhtestBi_explored");
     }
-
-
-    //ALT Furthest Query
-    start = std::chrono::high_resolution_clock::now();
-    double Dis = ALT(myGraph, sourceNode, targetNode, potentials);
-    //Stop the clock
-    end = std::chrono::high_resolution_clock::now();
-    time = end - start;
-    // Give out the distance and the time
-    std::cout<<"ALT Furthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<Dis<<std::endl;
-    std::cout<<"ALT Furthest query took: "<<time.count()<<std::endl;
-    //Save the exploration and path
-    ALTSaving(myGraph, sourceNode, targetNode, potentials, "Furthest_explored_nodes.txt", "Furthest_path.txt");
 
 }
 
