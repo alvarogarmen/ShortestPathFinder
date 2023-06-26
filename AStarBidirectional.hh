@@ -6,8 +6,8 @@
 #include "Dijkstra.hh"
 #include <cmath>
 #include <set>
-
 double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode) {
+    //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::set<double> visitedForward;
@@ -22,10 +22,11 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
     double bestPath = INT_MAX;
     double meetingNode = -1;
-
+    double iterator = 0;
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
+
 
         visitedForward.insert(forwardNode);
         visitedBackward.insert(backwardNode);
@@ -33,12 +34,16 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            return bestPath;
+            if(iterator > 3) {
+                return bestPath;
+            }
+
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
             meetingNode = forwardNode;
+            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -54,7 +59,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode]);
+                double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
                 double forwardF = distForward[forwardEdge] + forwardH;
 
                 if (apqForward.contains(forwardEdge)) {
@@ -72,7 +77,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode]);
+                double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 double backwardF = distBackward[backwardEdge] + backwardH;
 
                 if (apqBackward.contains(backwardEdge)) {
@@ -91,9 +96,9 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
     }
 
     if (bestPath == INT_MAX) {
+        std::cout<<"Visited and Graph sizes: "<<visitedForward.size()<<" "<<myGraph.nodes.size()<<std::endl;
         return -1;
     }
-
     return bestPath;
 }
 
@@ -114,27 +119,36 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
 
     double bestPath = INT_MAX;
     double meetingNode = -1;
+    int iterator = 0;
     std::ofstream exploredNodeFile(exploredFileName);
-    std::ofstream pathFile(pathFileName);
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
         visitedForward.insert(forwardNode);
+        exploredNodeFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
+
         visitedBackward.insert(backwardNode);
+        exploredNodeFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
+
 
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
-                bestPath = distForward[forwardNode] + distBackward[forwardNode];
+            if(iterator > 4) {
+                std::cout << "Broke early" << std::endl;
+                exploredNodeFile.close();
+                return bestPath;
             }
-            return bestPath;
+
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
+            std::cout<<"Temp bestPath: "<<bestPath<<std::endl;
+            std::cout<<"Iterator: "<<iterator<<std::endl;
             meetingNode = forwardNode;
+            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -151,7 +165,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
                 forwardPath[forwardEdge] = forwardNode;
 
-                double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode]);
+                double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
                 double forwardF = distForward[forwardEdge] + forwardH;
 
                 if (apqForward.contains(forwardEdge)) {
@@ -169,7 +183,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode]);
+                double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 double backwardF = distBackward[backwardEdge] + backwardH;
 
                 if (apqBackward.contains(backwardEdge)) {
@@ -190,15 +204,8 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
     if (bestPath == INT_MAX) {
         return -1;
     }
-    double currentNode = targetNode - 1;
-    while (currentNode != sourceNode - 1) {
-        pathFile << myGraph.nodes[currentNode].coordinateX << " " << myGraph.nodes[currentNode].coordinateY << "\n";
-        currentNode = forwardPath[currentNode];
-    }
-    pathFile << myGraph.nodes[sourceNode - 1].coordinateX << " " << myGraph.nodes[sourceNode - 1].coordinateY << "\n";
 
     exploredNodeFile.close();
-    pathFile.close();
 
     return bestPath;
 }

@@ -35,20 +35,11 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     //A*
     callAStar(myGraph, sourceNode, targetNode);
 
+    //ALT Farthest
+    callALTFarthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph);
 
 
 
-    //ALT Avoid and Bidirectional with Avoid Landmarks
-    //callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, "Landmarks_Avoid");
-    std::cout<<"STRANGE"<<std::endl;
-    callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph);
-
-    //ALT with MaxDegree (avoiding) Landmarks
-   //callALTMaxDegree(myGraph, sourceNode, targetNode, numLandmarks);
-
-    //callALTFurthest(myGraph, sourceNode, targetNode, numLandmarks);
-
-    //callHHS(myGraph, sourceNode, targetNode, numLandmarks);
 }
 
 void processInputForPlot(double sourceNode, double targetNode, std::string graph){

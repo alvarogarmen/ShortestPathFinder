@@ -22,7 +22,7 @@ void preprocessHighwayHierarchiesStar(Graph& myGraph) {
                 lowerLevelNeighbors[node].insert(neighbor);
         }
     }
-
+    std::cout<<"Neighbors loop successful"<<std::endl;
     std::queue<int> nodeQueue;
     for (int node = 0; node < myGraph.nodes.size(); node++) {
         if (lowerLevelNeighbors[node].empty()) {
@@ -42,7 +42,7 @@ void preprocessHighwayHierarchiesStar(Graph& myGraph) {
             }
         }
     }
-
+    std::cout<<"Step 1 finished"<<std::endl;
     // Step 2: Create hierarchy and compute shortcuts
     for (int level = 1; level < *std::max_element(nodeLevels.begin(), nodeLevels.end()); level++) {
         for (int node = 0; node < myGraph.nodes.size(); node++) {
@@ -59,8 +59,6 @@ void preprocessHighwayHierarchiesStar(Graph& myGraph) {
 }
 
 double highwayHierarchiesStar(Graph myGraph, double sourceNode, double targetNode) {
-    preprocessHighwayHierarchiesStar(myGraph);
-
     std::vector<double> distances(myGraph.nodes.size(), std::numeric_limits<double>::infinity());
     std::vector<bool> visited(myGraph.nodes.size(), false);
     std::vector<double> forwardDistances(myGraph.nodes.size(), std::numeric_limits<double>::infinity());

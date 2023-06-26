@@ -85,7 +85,7 @@ std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, co
 }
 
 
-std::vector<double> computeFurthestLandmarks(Graph myGraph, int numLandmarks, std::string filename) {
+std::vector<double> computeFarthestLandmarks(Graph myGraph, int numLandmarks, std::string filename) {
     std::vector<double> landmarks;
     std::vector<Node> nodes = myGraph.getNodes();
     std::unordered_set<double> selectedNodes;  // To keep track of selected landmarks
@@ -103,9 +103,9 @@ std::vector<double> computeFurthestLandmarks(Graph myGraph, int numLandmarks, st
     // Select the remaining landmarks
     for (int i = 1; i < numLandmarks; i++) {
         double maxDistance = 0;
-        int furthestNode = -1;
+        int FarthestNode = -1;
 
-        // Find the node that is furthest from the already selected landmarks
+        // Find the node that is Farthest from the already selected landmarks
         for (int j = 0; j < nodes.size(); j++) {
             if (selectedNodes.find(j) == selectedNodes.end()) {
                 double minDistance = INT_MAX;
@@ -118,17 +118,17 @@ std::vector<double> computeFurthestLandmarks(Graph myGraph, int numLandmarks, st
                     }
                 }
 
-                // Update the furthest node if it has the maximum minimum distance
+                // Update the Farthest node if it has the maximum minimum distance
                 if (minDistance > maxDistance) {
                     maxDistance = minDistance;
-                    furthestNode = j;
+                    FarthestNode = j;
                 }
             }
         }
 
-        // Add the furthest node as a landmark
-        landmarks.push_back(furthestNode);
-        selectedNodes.insert(furthestNode);
+        // Add the Farthest node as a landmark
+        landmarks.push_back(FarthestNode);
+        selectedNodes.insert(FarthestNode);
     }
     //save the landmarks to a file
     std::ofstream file(filename);

@@ -1,4 +1,5 @@
 double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
+    //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::set<double> visitedForward;
@@ -13,10 +14,11 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
 
     double bestPath = INT_MAX;
     double meetingNode = -1;
-
+    double iterator = 0;
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
+
 
         visitedForward.insert(forwardNode);
         visitedBackward.insert(backwardNode);
@@ -24,15 +26,16 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
-                bestPath = distForward[forwardNode] + distBackward[forwardNode];
+            if(iterator > 3) {
+                return bestPath;
             }
-            return bestPath;
+
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
             meetingNode = forwardNode;
+            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -85,19 +88,21 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     }
 
     if (bestPath == INT_MAX) {
+        std::cout<<"Visited and Graph sizes: "<<visitedForward.size()<<" "<<myGraph.nodes.size()<<std::endl;
         return -1;
     }
-
     return bestPath;
 }
 
-double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials, std::string filename) {
+double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials, std::string exploredFilename, std::string pathFilename) {
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::set<double> visitedForward;
     std::set<double> visitedBackward;
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> forwardPath(myGraph.nodes.size(), -1);
+    std::vector<double> backwardPath(myGraph.nodes.size(), -1);
 
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
@@ -106,32 +111,37 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
     double bestPath = INT_MAX;
     double meetingNode = -1;
-
-    std::ofstream exploredNodesFile(filename);
-    if (!exploredNodesFile.is_open()) {
-        std::cerr << "Error opening file." << std::endl;
-        return -1; // or handle the error in an appropriate way
-    }
-
+    int iterator = 0;
+    std::ofstream exploredNodeFile(exploredFilename);
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
         visitedForward.insert(forwardNode);
+        exploredNodeFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
+
         visitedBackward.insert(backwardNode);
+        exploredNodeFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
 
-        exploredNodesFile << myGraph.getNode(forwardNode).coordinateX <<" "<<myGraph.getNode(forwardNode).coordinateY << std::endl;
-        exploredNodesFile << myGraph.getNode(backwardNode).coordinateX <<" "<< myGraph.getNode(backwardNode).coordinateY<< std::endl;
 
-        if (visitedForward.find(backwardNode) != visitedForward.end() && visitedBackward.find(forwardNode) != visitedBackward.end()) {
-            bestPath = distForward[forwardNode] + distBackward[forwardNode];
-            exploredNodesFile.close();
-            return bestPath;
+
+
+        if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
+            if(iterator > 3) {
+                std::cout << "Broke early" << std::endl;
+                double currentNode = targetNode - 1;
+                exploredNodeFile.close();
+                return bestPath;
+            }
+
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
+            std::cout<<"Temp bestPath: "<<bestPath<<std::endl;
+            std::cout<<"Iterator: "<<iterator<<std::endl;
             meetingNode = forwardNode;
+            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -146,14 +156,14 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
+                forwardPath[forwardEdge] = forwardNode;
 
-                double forwardH = estimate(forwardEdge, targetNode, potentials);
+                double forwardH = estimate(forwardEdge, targetNode-1, potentials);
                 double forwardF = distForward[forwardEdge] + forwardH;
 
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
-                }
-                else {
+                } else {
                     apqForward.insertNode(forwardEdge, forwardF);
                 }
             }
@@ -163,23 +173,20 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
-            if (distBackward[backwardNode] + backwardWeight < distBackward[backwardEdge]) {
+            if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = estimate(backwardEdge, sourceNode, potentials);
+                double backwardH = estimate(backwardEdge, sourceNode-1, potentials);
                 double backwardF = distBackward[backwardEdge] + backwardH;
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
-                }
-                else {
+                } else {
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
             }
         }
     }
-
-    exploredNodesFile.close();
 
     if (meetingNode != -1) {
         double shortestPath = distForward[meetingNode] + distBackward[meetingNode];
@@ -190,6 +197,8 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
     if (bestPath == INT_MAX) {
         return -1;
     }
+
+    exploredNodeFile.close();
 
     return bestPath;
 }
