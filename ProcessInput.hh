@@ -60,6 +60,13 @@ void callAStar(Graph myGraph, double sourceNode, double targetNode){
     // Give out the distance and the time
     std::cout<<"A* from Node "<<sourceNode<<" to Node "<< targetNode<<" is: "<<Dis<<std::endl;
     std::cout<<"A* took: "<<time.count()<<"s"<<std::endl;
+
+    start=std::chrono::high_resolution_clock::now();
+    Dis = AStarBidirectional(myGraph, sourceNode, targetNode);
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    std::cout<<"A* Bidirectional: "<<Dis<<std::endl;
+    std::cout<<"Took: "<<time.count()<<"s"<<std::endl;
 }
 
 
@@ -203,7 +210,7 @@ void callALTFurthest(Graph myGraph, double sourceNode, double targetNode, int nu
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        std::vector<double> landmarksFurthest =avoidLandmarkSelection(myGraph, numLandmarks, "Landmarks_Furthest");
+        std::vector<double> landmarksFurthest =computeFurthestLandmarks(myGraph, numLandmarks, "Landmarks_Furthest");
         for (double land : landmarksFurthest){
             std::cout<<land<<std::endl;
         }

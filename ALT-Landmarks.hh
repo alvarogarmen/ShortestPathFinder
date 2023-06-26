@@ -17,6 +17,64 @@
 #include <unordered_set>
 #include <random>
 
+double multiSourceDijkstra(Graph& myGraph, const std::vector<double>& sourceNodes) {
+    // Get a priority queue
+    APQ apq = APQ();
+
+    // Initialize the distances to infinity
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+
+    // Insert all source nodes with distance 0 into the APQ
+    for (double sourceNode : sourceNodes) {
+        apq.insertNode(sourceNode - 1, 0);
+        dist[sourceNode - 1] = 0;
+    }
+
+    // Main loop
+    while (!apq.isEmpty()) {
+        // Active node. Note that if it's already in the set, inserting doesn't do anything
+        double currentNode = apq.popMin();
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        // Look for edges to relax
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+
+            // Calculate the weight as the Euclidean distance between the nodes
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+            // Relax the edge if a shorter path is found
+            if (dist[currentNode] + weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+
+                // Decrease key operation if the node is already in APQ
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, dist[edge]);
+                }
+                    // Otherwise, insert it into the APQ
+                else {
+                    apq.insertNode(edge, dist[edge]);
+                }
+            }
+        }
+    }
+
+    // Find the farthest node from all sources
+    double farthestNode = -1;
+    double maxDistance = INT_MIN;
+    for (double i = 0; i < dist.size(); i++) {
+        if (dist[i] > maxDistance && dist[i] < INT_MAX) {
+            maxDistance = dist[i];
+            farthestNode = i;
+        }
+    }
+
+    return farthestNode;
+}
+
+
 std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
     std::vector<std::vector<double>> potentialsInverted;
     for (double i = 0; i<landmarks.size(); i++){
@@ -204,6 +262,46 @@ std::vector<double> selectLandmarks(Graph myGraph, double numLandmarks) {
     return landmarks;
 }
 
+std::vector<double> farthestLandmarkSelection(Graph& myGraph, int numLandmarks, std::string filename){
+    std::vector<double> landmarks;
+    std::unordered_set<double> selectedNodes;
+    std::vector<Node> nodes = myGraph.getNodes();
+
+
+    //Randomly select the first landmarks node
+    // Randomly select the first landmark node
+    std::random_device rd;
+    std::mt19937 rng(rd());
+    std::uniform_int_distribution<int> dist(0, nodes.size() - 1);
+    int firstLandmark = dist(rng);
+    landmarks.push_back(firstLandmark);
+    selectedNodes.insert(firstLandmark);
+
+    //Select the remaining landmarks
+    for (int i = 1; i<numLandmarks; i++){
+        double nextLandmark = multiSourceDijkstra(myGraph, landmarks);
+        landmarks.push_back(nextLandmark);
+        selectedNodes.insert(nextLandmark);
+    }
+
+    //save the landmarks to a file
+    std::ofstream file(filename);
+
+    for (double landmark : landmarks) {
+        file << landmark << std::endl;
+    }
+    file.close();
+    std::cout<<"Writing landmarks to "<<filename+"coord"<<std::endl;
+    std::ofstream file2(filename+"coord");
+
+    for (double landmark : landmarks) {
+        file2 << myGraph.getNode(landmark).coordinateX << " "<<myGraph.getNode(landmark).coordinateY << std::endl;
+    }
+    file2.close();
+
+    return landmarks;
+
+}
 std::vector<double> avoidLandmarkSelection(Graph myGraph, int numLandmarks, std::string filename) {
     std::vector<double> landmarks;
     std::vector<Node> nodes = myGraph.getNodes();

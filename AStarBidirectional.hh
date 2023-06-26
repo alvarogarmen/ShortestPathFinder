@@ -7,7 +7,7 @@
 #include <cmath>
 #include <set>
 
-double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
+double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode) {
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::set<double> visitedForward;
