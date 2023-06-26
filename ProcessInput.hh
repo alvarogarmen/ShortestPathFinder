@@ -70,6 +70,7 @@ void callAStar(Graph myGraph, double sourceNode, double targetNode){
     time = end - start;
     std::cout<<"A* Bidirectional: "<<Dis<<std::endl;
     std::cout<<"Took: "<<time.count()<<"s"<<std::endl;
+    AStarBidirectionalSaving(myGraph, sourceNode, targetNode, "AStar_Bidirectional_explored", "AStar_Bidirectional_path");
 }
 
 

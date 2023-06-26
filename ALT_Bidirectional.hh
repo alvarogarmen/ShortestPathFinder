@@ -24,6 +24,9 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
+            if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
+                bestPath = distForward[forwardNode] + distBackward[forwardNode];
+            }
             return bestPath;
         }
 
@@ -45,7 +48,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                double forwardH = estimate(forwardEdge, targetNode, potentials);
+                double forwardH = estimate(forwardEdge, targetNode-1, potentials);
                 double forwardF = distForward[forwardEdge] + forwardH;
 
                 if (apqForward.contains(forwardEdge)) {
@@ -63,7 +66,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = estimate(backwardEdge, sourceNode, potentials);
+                double backwardH = estimate(backwardEdge, sourceNode-1, potentials);
                 double backwardF = distBackward[backwardEdge] + backwardH;
 
                 if (apqBackward.contains(backwardEdge)) {
@@ -121,6 +124,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
         exploredNodesFile << myGraph.getNode(backwardNode).coordinateX <<" "<< myGraph.getNode(backwardNode).coordinateY<< std::endl;
 
         if (visitedForward.find(backwardNode) != visitedForward.end() && visitedBackward.find(forwardNode) != visitedBackward.end()) {
+            bestPath = distForward[forwardNode] + distBackward[forwardNode];
             exploredNodesFile.close();
             return bestPath;
         }

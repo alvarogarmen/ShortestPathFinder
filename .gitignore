@@ -33,3 +33,5 @@ Landmarks_Avoidcoord
 ALTFurhtestBi_explored
 ALTFurthest_explored
 ALTFurthest_path
+AStar_Bidirectional_explored
+AStar_Bidirectional_path
