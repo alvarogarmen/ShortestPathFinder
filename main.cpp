@@ -36,13 +36,8 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     callAStar(myGraph, sourceNode, targetNode);
 
 
-    //Saving A* and Dijkstra
-    DijkstraSaving(myGraph, sourceNode, targetNode);
-    AStarSaving(myGraph, sourceNode, targetNode);
-    std::cout<<"HERE"<<std::endl;
 
-    //Bidirectional A*
-    //callAStarBidirectional(myGraph, sourceNode, targetNode);
+
     //ALT Avoid and Bidirectional with Avoid Landmarks
     //callALTAvoid(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, "Landmarks_Avoid");
     std::cout<<"STRANGE"<<std::endl;
