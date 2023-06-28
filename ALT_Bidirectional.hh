@@ -1,4 +1,4 @@
-double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials, int secureBidirectional) {
+double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, std::vector<std::vector<double>> potentials, int secureBidirectional) {
     //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
@@ -7,8 +7,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
-    apqForward.insertNode(sourceNode - 1, estimate(sourceNode-1, sourceNode-1, potentials));
-    apqBackward.insertNode(targetNode - 1, estimate(targetNode-1, sourceNode-1, potentials));
+    apqForward.insertNode(sourceNode - 1, 0);
+    apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
@@ -26,7 +26,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(bestPath>343439.0) {
+            if(iterator > secureBidirectional) {
                 return bestPath;
             }
 
@@ -128,8 +128,6 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
             if(iterator > secureBidirectional) {
-                std::cout << "Broke early" << std::endl;
-                double currentNode = targetNode - 1;
                 exploredNodeFile.close();
                 return bestPath;
             }
@@ -138,10 +136,11 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
-            std::cout<<"Temp bestPath: "<<bestPath<<std::endl;
-            std::cout<<"Iterator: "<<iterator<<std::endl;
             meetingNode = forwardNode;
             iterator++;
+        }
+        if(distForward[backwardNode] + distBackward[backwardNode] < bestPath){
+            bestPath = distBackward[backwardNode] + distForward[backwardNode];
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;

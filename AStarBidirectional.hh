@@ -136,7 +136,6 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
             if(iterator > secureBidirectional) {
-                std::cout << "Broke early" << std::endl;
                 exploredNodeFile.close();
                 return bestPath;
             }
@@ -145,8 +144,6 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
-            std::cout<<"Temp bestPath: "<<bestPath<<std::endl;
-            std::cout<<"Iterator: "<<iterator<<std::endl;
             meetingNode = forwardNode;
             iterator++;
         }
