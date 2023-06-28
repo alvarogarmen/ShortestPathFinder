@@ -1,4 +1,4 @@
-double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
+double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials, int secureBidirectional) {
     //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
@@ -7,8 +7,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
-    apqForward.insertNode(sourceNode - 1, 0);
-    apqBackward.insertNode(targetNode - 1, 0);
+    apqForward.insertNode(sourceNode - 1, estimate(sourceNode-1, sourceNode-1, potentials));
+    apqBackward.insertNode(targetNode - 1, estimate(targetNode-1, sourceNode-1, potentials));
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
@@ -26,7 +26,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(iterator > 3) {
+            if(bestPath>343439.0) {
                 return bestPath;
             }
 
@@ -94,7 +94,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     return bestPath;
 }
 
-double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials, std::string exploredFilename, std::string pathFilename) {
+double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials, std::string exploredFilename, int secureBidirectional) {
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::set<double> visitedForward;
@@ -127,7 +127,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(iterator > 3) {
+            if(iterator > secureBidirectional) {
                 std::cout << "Broke early" << std::endl;
                 double currentNode = targetNode - 1;
                 exploredNodeFile.close();

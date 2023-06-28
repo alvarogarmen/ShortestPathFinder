@@ -6,7 +6,7 @@
 #include "Dijkstra.hh"
 #include <cmath>
 #include <set>
-double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode) {
+double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, int secureBidirectional) {
     //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
@@ -34,7 +34,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(iterator > 3) {
+            if(iterator > secureBidirectional) {
                 return bestPath;
             }
 
@@ -102,7 +102,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
     return bestPath;
 }
 
-double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string exploredFileName, std::string pathFileName) {
+double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string exploredFileName, int secureBidirectional) {
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::set<double> visitedForward;
@@ -135,7 +135,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
 
 
         if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(iterator > 4) {
+            if(iterator > secureBidirectional) {
                 std::cout << "Broke early" << std::endl;
                 exploredNodeFile.close();
                 return bestPath;

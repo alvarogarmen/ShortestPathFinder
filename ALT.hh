@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-double estimate(double& source, double target, const std::vector<std::vector<double>>& potentials) {
+double estimate(double source, double target, const std::vector<std::vector<double>>& potentials) {
     double potential=0;
     //TODO: Inverted!!
     for (int i = 0; i < potentials.size(); i++) {

@@ -31,12 +31,17 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
 
     //Dijkstra
     callDijkstra(myGraph, sourceNode, targetNode);
-
+    //Secure Bidirectional
+    int secureBidirectional;
+    if (graph == "roadnetworks/bel.graph"){secureBidirectional=2;}
+    if (graph == "roadnetworks/deu.graph"){secureBidirectional=4;}
+    if (graph == "roadnetworks/eur.graph"){secureBidirectional=6;}
+    if (graph == "roadnetworks/bel.graph"){secureBidirectional=2;}
     //A*
-    callAStar(myGraph, sourceNode, targetNode);
+    callAStar(myGraph, sourceNode, targetNode, secureBidirectional);
 
     //ALT Farthest
-    callALTFarthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph);
+    callALTFarthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph, secureBidirectional);
 
 
 
