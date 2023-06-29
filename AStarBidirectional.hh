@@ -14,7 +14,8 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
     std::set<double> visitedBackward;
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
-
+    double minForward = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1]);
+    double minBackward = minForward;
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
@@ -24,6 +25,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
     double meetingNode = -1;
     double iterator = 0;
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
+
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
@@ -33,11 +35,8 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
 
 
-        if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(iterator > secureBidirectional) {
-                return bestPath;
-            }
-
+        if (bestPath <= minBackward and bestPath <= minForward){
+            return bestPath;
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
@@ -60,8 +59,9 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
                 double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
-                double forwardF = distForward[forwardEdge] + forwardH;
 
+                double forwardF = distForward[forwardEdge] + forwardH;
+                if(forwardF < minForward){minForward=forwardF;}
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
                 } else {
@@ -79,6 +79,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
                 double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 double backwardF = distBackward[backwardEdge] + backwardH;
+                if(backwardF < minBackward){minBackward=backwardF;}
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
@@ -111,7 +112,8 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> forwardPath(myGraph.nodes.size(), -1);
     std::vector<double> backwardPath(myGraph.nodes.size(), -1);
-
+    double minForward = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1]);
+    double minBackward = minForward;
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
@@ -122,6 +124,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
     int iterator = 0;
     std::ofstream exploredNodeFile(exploredFileName);
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
+
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
@@ -134,7 +137,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
 
 
 
-        if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
+        if (bestPath <= minForward and bestPath <= minBackward) {
             if(iterator > secureBidirectional) {
                 exploredNodeFile.close();
                 return bestPath;
@@ -163,6 +166,8 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 forwardPath[forwardEdge] = forwardNode;
 
                 double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
+                if(forwardH < minForward){minForward=forwardH;}
+
                 double forwardF = distForward[forwardEdge] + forwardH;
 
                 if (apqForward.contains(forwardEdge)) {
@@ -181,6 +186,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
                 double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
+                if(backwardH < minBackward){minBackward=backwardH;}
                 double backwardF = distBackward[backwardEdge] + backwardH;
 
                 if (apqBackward.contains(backwardEdge)) {
