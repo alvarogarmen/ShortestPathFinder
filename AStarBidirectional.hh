@@ -7,21 +7,21 @@
 #include <cmath>
 #include <set>
 double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, int secureBidirectional) {
-    //Get two priority queues
+    //Get two priority queues, visited vectors and dist arrays
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
     std::vector<bool> visitedForward(myGraph.nodes.size(), false);
     std::vector<bool> visitedBackward(myGraph.nodes.size(), false);
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
-    double minPath = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1])*3;
+    // Init the minPath variable to infinity. If the current bestPath gets higher than this variable, we terminate
+    double minPath = INT_MAX;
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
     double bestPath = INT_MAX;
-    double meetingNode = -1;
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
@@ -32,11 +32,11 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
         visitedBackward[backwardNode]=true;
 
 
-        if (bestPath <= minPath){
-            return bestPath;
-        }
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
+        }
+        if (distForward[backwardNode] + distBackward[backwardNode] < bestPath){
+            bestPath = distForward[backwardNode] + distBackward[backwardNode];
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -82,6 +82,9 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 }
             }
         }
+        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
+            return bestPath;
+        }
     }
 
     return bestPath;
@@ -96,7 +99,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> forwardPath(myGraph.nodes.size(), -1);
     std::vector<double> backwardPath(myGraph.nodes.size(), -1);
-    double minPath = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1])*3;
+    double minPath = INT_MAX;
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
@@ -118,13 +121,12 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
 
 
 
-        if (bestPath <= minPath){
-            exploredNodeFile.close();
-            return bestPath;
-        }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
+        }
+        if (distForward[backwardNode] + distBackward[backwardNode] < bestPath){
+            bestPath = distForward[backwardNode] + distBackward[backwardNode];
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -173,13 +175,14 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 }
             }
         }
+        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
+            exploredNodeFile.close();
+            return bestPath;
+        }
     }
 
 
 
-    if (bestPath == INT_MAX) {
-        return -1;
-    }
 
     exploredNodeFile.close();
 
