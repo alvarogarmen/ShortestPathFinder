@@ -141,7 +141,9 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
                 double forwardH = estimate(forwardEdge, targetNode-1, potentials);
                 double forwardF = distForward[forwardEdge] + forwardH;
-                if(visitedBackward[forwardEdge] && forwardF+distBackward[forwardEdge] < minPath){minPath=distBackward[forwardEdge]+forwardF;}
+                if(visitedBackward[forwardEdge] && forwardF+distBackward[forwardEdge] < minPath){
+                    minPath=distBackward[forwardEdge]+forwardF;
+                }
 
 
                 if (apqForward.contains(forwardEdge)) {

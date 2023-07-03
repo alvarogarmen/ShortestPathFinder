@@ -53,7 +53,6 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
                 dist[edge] = dist[currentNode] + weight;
 
                 if (edge == targetNode-1){
-                    std::cout<<"Here"<<std::endl;
                     return dist[edge];
                 }
 

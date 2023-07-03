@@ -126,12 +126,12 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, secureBidirectional);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoidBi_explored", secureBidirectional);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBi_explored", potentials);
     }
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
@@ -165,12 +165,12 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", "ALTAvoid_path");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, secureBidirectional);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoidBi_explored", secureBidirectional);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBi_explored", potentials);
     }
 
 }
@@ -205,12 +205,12 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored", "ALTFarthest_path");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, secureBidirectional);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthestBi_explored", secureBidirectional);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTFarthestBi_explored", potentials);
     }
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
@@ -244,12 +244,12 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored", "ALTFarthest_path");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, secureBidirectional);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthestBi_explored", secureBidirectional);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTFarthestBi_explored", potentials);
     }
 
 }

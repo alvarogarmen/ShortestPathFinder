@@ -9,7 +9,95 @@
 #include <unordered_set>
 #include "Graph.hh"
 #include "APQ.hh"
+void BiBiALT (Graph& g, int source, int target, std::vector<std::vector<double>>& vec) {
 
+    MinHeap Qf;
+    MinHeap Qb;
+
+    std::vector<double> df(g.getNodes().size(), INFINITY);
+    std::vector<int> parentf(g.getNodes().size());
+
+    std::vector<double> db(g.getNodes().size(), INFINITY);
+    std::vector<int> parentb(g.getNodes().size());
+
+    std::vector<bool> visitedT(g.getNodes().size(), false);
+    std::vector<bool> visitedS(g.getNodes().size(), false);
+
+    visitedS[source] = true;
+    parentf[source] = source;
+    df[source] = 0;
+    Qf.insert(source,0);
+
+    visitedT[target] = true;
+    parentb[target] = target;
+    db[target] = 0;
+    Qb.insert(target,0);
+
+    double mu = INFINITY;
+
+    std::unordered_set<int> Sf;
+    std::unordered_set<int> Sb;
+
+    while (!Qf.isEmpty() && !Qb.isEmpty()){
+        std::pair<int,double> uf = Qf.deleteMin();
+        std::pair<int,double> ub = Qb.deleteMin();
+
+        Sf.insert(uf.first);
+        Sb.insert(ub.first);
+
+        for (int v = 0; v < g.getNodes()[uf.first + 1].second - g.getNodes()[uf.first].second; v++) {
+
+            int nodeV = g.getEdges()[g.getNodes()[uf.first].second+v].getId();
+            double eucDist = euclideanDistance(g.getNodes()[uf.first].first, g.getNodes()[nodeV].first);
+
+            if(df[uf.first] + eucDist< df[nodeV]){
+                parentf[nodeV] = uf.first;
+                df[nodeV] = df[uf.first] + eucDist;
+                if(!visitedS[nodeV]) {
+                    Qf.insert(nodeV, eucDist + df[uf.first] + getPotential(target, nodeV, vec));
+                    visitedS[nodeV] = true;
+                } else {
+                    Qf.decreaseKey(nodeV, eucDist + df[uf.first] + getPotential(target, nodeV, vec));
+                }
+            }
+            if(visitedS[nodeV] && df[uf.first] + eucDist + db[nodeV] < mu) {
+                mu = df[uf.first] + eucDist + db[nodeV];
+            }
+        }
+
+        for (int v = 0; v < g.getNodes()[ub.first + 1].second - g.getNodes()[ub.first].second; v++) {
+
+            int nodeV = g.getEdges()[g.getNodes()[ub.first].second+v].getId();
+            double eucDist = euclideanDistance(g.getNodes()[ub.first].first, g.getNodes()[nodeV].first);
+
+            if(db[ub.first] + eucDist < db[nodeV]){
+                parentb[nodeV] = ub.first;
+                db[nodeV] = db[ub.first] + eucDist;
+                if(!visitedT[nodeV]) {
+                    Qb.insert(nodeV, eucDist + db[ub.first] + getPotential(source, nodeV, vec));
+                    visitedT[nodeV] = true;
+                } else {
+                    Qb.decreaseKey(nodeV, eucDist + db[ub.first] + getPotential(source, nodeV, vec));
+                }
+            }
+            if(visitedT[nodeV] && db[ub.first] + eucDist + df[nodeV] < mu) {
+                mu = db[ub.first] + eucDist + df[nodeV];
+            }
+        }
+
+        /*if (visitedT[uf.first] && visitedS[ub.first]) {
+                std::cout<<"distance has been found with Bidirectional Dijkstra between " << source << " and "  << target << " it is " << mu <<std::endl;
+                return;
+        }*/
+
+if(Qf.top().second >= mu || Qb.top().second >= mu) {
+std::cout<<"distance has been found with Bidirectional Dijkstra between " << source << " and "  << target << " it is " << mu <<std::endl;
+return;
+}
+
+ }
+    return;
+}
 /*
 double AStarBidirectionalSaving(Graph myGraph, double sourceNode, double targetNode, const std::string& exploredFileName, const std::string& pathFileName) {
     APQ forwardAPQ = APQ();
