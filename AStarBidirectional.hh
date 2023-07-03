@@ -10,12 +10,11 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
     //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
-    std::set<double> visitedForward;
-    std::set<double> visitedBackward;
+    std::vector<bool> visitedForward(myGraph.nodes.size(), false);
+    std::vector<bool> visitedBackward(myGraph.nodes.size(), false);
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
-    double minForward = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1]);
-    double minBackward = minForward;
+    double minPath = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1])*3;
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
@@ -23,26 +22,21 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
     double bestPath = INT_MAX;
     double meetingNode = -1;
-    double iterator = 0;
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
 
-        visitedForward.insert(forwardNode);
-        visitedBackward.insert(backwardNode);
+        visitedForward[forwardNode]=true;
+        visitedBackward[backwardNode]=true;
 
 
-
-        if (bestPath <= minBackward and bestPath <= minForward){
+        if (bestPath <= minPath){
             return bestPath;
         }
-
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
-            meetingNode = forwardNode;
-            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -61,7 +55,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
 
                 double forwardF = distForward[forwardEdge] + forwardH;
-                if(forwardF < minForward){minForward=forwardF;}
+                if(visitedBackward[forwardEdge] && distForward[forwardEdge]+forwardWeight+distBackward[forwardEdge] < minPath){minPath=distForward[forwardEdge]+forwardWeight+distBackward[forwardEdge];}
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
                 } else {
@@ -79,7 +73,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
                 double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 double backwardF = distBackward[backwardEdge] + backwardH;
-                if(backwardF < minBackward){minBackward=backwardF;}
+                if(visitedForward[backwardEdge] && distForward[backwardEdge]+backwardWeight+distBackward[backwardEdge] < minPath){minPath=distForward[backwardEdge]+backwardWeight+distBackward[backwardEdge];}
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
@@ -90,65 +84,47 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
         }
     }
 
-    if (meetingNode != -1) {
-        double shortestPath = distForward[meetingNode] + distBackward[meetingNode];
-        if (shortestPath < bestPath)
-            bestPath = shortestPath;
-    }
-
-    if (bestPath == INT_MAX) {
-        std::cout<<"Visited and Graph sizes: "<<visitedForward.size()<<" "<<myGraph.nodes.size()<<std::endl;
-        return -1;
-    }
     return bestPath;
 }
 
 double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string exploredFileName, int secureBidirectional) {
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
-    std::set<double> visitedForward;
-    std::set<double> visitedBackward;
+    std::vector<bool> visitedForward(myGraph.nodes.size(), false);
+    std::vector<bool> visitedBackward(myGraph.nodes.size(), false);
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> forwardPath(myGraph.nodes.size(), -1);
     std::vector<double> backwardPath(myGraph.nodes.size(), -1);
-    double minForward = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1]);
-    double minBackward = minForward;
+    double minPath = distance(myGraph.nodes[sourceNode-1], myGraph.nodes[targetNode-1])*3;
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
     double bestPath = INT_MAX;
-    double meetingNode = -1;
-    int iterator = 0;
     std::ofstream exploredNodeFile(exploredFileName);
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
-        visitedForward.insert(forwardNode);
+        visitedForward[forwardNode]=true;
         exploredNodeFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
 
-        visitedBackward.insert(backwardNode);
+        visitedBackward[backwardNode]=true;
         exploredNodeFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
 
 
 
 
-        if (bestPath <= minForward and bestPath <= minBackward) {
-            if(iterator > secureBidirectional) {
-                exploredNodeFile.close();
-                return bestPath;
-            }
-
+        if (bestPath <= minPath){
+            exploredNodeFile.close();
+            return bestPath;
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
-            meetingNode = forwardNode;
-            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -166,9 +142,9 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 forwardPath[forwardEdge] = forwardNode;
 
                 double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
-                if(forwardH < minForward){minForward=forwardH;}
-
                 double forwardF = distForward[forwardEdge] + forwardH;
+                if(visitedBackward[forwardEdge] && forwardF+distBackward[forwardEdge] < minPath){minPath=distBackward[forwardEdge]+forwardF;}
+
 
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
@@ -186,8 +162,9 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
                 double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
-                if(backwardH < minBackward){minBackward=backwardH;}
                 double backwardF = distBackward[backwardEdge] + backwardH;
+                if(visitedForward[backwardEdge] && backwardF+distForward[backwardEdge] < minPath){minPath=distForward[backwardEdge]+backwardF;}
+
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
@@ -198,11 +175,7 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
         }
     }
 
-    if (meetingNode != -1) {
-        double shortestPath = distForward[meetingNode] + distBackward[meetingNode];
-        if (shortestPath < bestPath)
-            bestPath = shortestPath;
-    }
+
 
     if (bestPath == INT_MAX) {
         return -1;

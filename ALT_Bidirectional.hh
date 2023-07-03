@@ -2,8 +2,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     //Get two priority queues
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
-    std::set<double> visitedForward;
-    std::set<double> visitedBackward;
+    std::vector<bool> visitedForward(myGraph.nodes.size(), false);
+    std::vector<bool> visitedBackward(myGraph.nodes.size(), false);
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
@@ -12,7 +12,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
-    double bestPath = INT_MAX;
+    double bestPath = INT_MAX-1;
     double meetingNode = -1;
     double iterator = 0;
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
@@ -20,22 +20,17 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
         double backwardNode = apqBackward.popMin();
 
 
-        visitedForward.insert(forwardNode);
-        visitedBackward.insert(backwardNode);
+        visitedForward[forwardNode]=true;
+        visitedBackward[backwardNode]=true;
 
 
 
-        if (visitedForward.find(backwardNode)!=visitedForward.end() && visitedBackward.find(forwardNode)!=visitedBackward.end()) {
-            if(iterator > secureBidirectional) {
-                return bestPath;
-            }
-
+        if (visitedForward[backwardNode] && visitedBackward[forwardNode]) {
+            return bestPath;
         }
 
         if (distForward[forwardNode] + distBackward[forwardNode] < bestPath) {
             bestPath = distForward[forwardNode] + distBackward[forwardNode];
-            meetingNode = forwardNode;
-            iterator++;
         }
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -109,7 +104,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
-    double bestPath = INT_MAX;
+    double bestPath = INT_MAX-1;
     double meetingNode = -1;
     int iterator = 0;
     std::ofstream exploredNodeFile(exploredFilename);
