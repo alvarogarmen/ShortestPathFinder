@@ -14,7 +14,6 @@
 
 double AStar(Graph& myGraph, double& sourceNode, double& targetNode) {
     APQ apq = APQ();
-    std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
 
     apq.insertNode(sourceNode - 1, 0);
@@ -22,8 +21,6 @@ double AStar(Graph& myGraph, double& sourceNode, double& targetNode) {
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
-        visited.insert(currentNode);
-
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];
