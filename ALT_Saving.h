@@ -85,4 +85,52 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
     return dist[targetNode - 1];
 }
 
+
+double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
+    APQSaving apq = APQSaving();
+    std::vector<double> visited;
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+
+    apq.insertNode(sourceNode - 1, 0, -1);
+    dist[sourceNode - 1] = 0;
+    visited.push_back(sourceNode);
+
+    while (!apq.isEmpty()) {
+        double currentNode = apq.popMin();
+
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+            visited.push_back(edge);
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+            if (dist[currentNode] + weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+
+                if (edge == targetNode - 1) {
+                    return visited.size();
+                }
+
+                double h = estimate(edge, targetNode-1, potentials);
+                double f = dist[edge] + h;
+
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, f, currentNode);
+                } else {
+                    apq.insertNode(edge, f, currentNode);
+                }
+            }
+        }
+    }
+
+    std::cout << "All available edges relaxed" << std::endl;
+    if (dist[targetNode - 1] == INT_MAX) {
+        return visited.size();
+    }
+    return visited.size();
+}
+
 #endif //PRAKTIKUM_ALT_SAVING_H

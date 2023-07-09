@@ -16,6 +16,7 @@
 #include "ALT_Bidirectional.hh"
 #include "HighwayHierarchiesStar.hh"
 #include "AStarBidirectional.hh"
+#include "DijkstraBidirectional.hh"
 
 std::vector<double> loadLandmarks(std::string filename){
     std::vector<double> vec;
@@ -131,7 +132,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         time = end - start;
         std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBi_explored", potentials);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBidirectional", potentials);
     }
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
@@ -170,7 +171,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         time = end - start;
         std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBi_explored", potentials);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBidirectional", potentials);
     }
 
 }
@@ -210,15 +211,12 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTFarthestBi_explored", potentials);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
     }
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
         std::vector<double> landmarksFarthest =farthestLandmarkSelection(myGraph, numLandmarks, "Landmarks_Farthest_"+filename.substr(13,3));
-        for (double land : landmarksFarthest){
-            std::cout<<land<<std::endl;
-        }
 
         std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFarthest);
         std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;
@@ -249,9 +247,17 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTFarthestBi_explored", potentials);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
     }
 
+}
+void plotALTFarthest(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks, std::string filename, int secureBidirectional){
+    std::vector<double> landmarks=loadLandmarks("Landmarks_Farthest_"+filename.substr(13,3));
+    std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarks);
+
+    ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored", "ALTFarthest_path");
+
+    ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
 }
 
 

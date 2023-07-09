@@ -14,6 +14,7 @@
 #include "AStar_Saving.hh"
 #include "ALT_Saving.h"
 #include "ProcessInput.hh"
+#include "Experiments.hh"
 #include <iostream>
 
 
@@ -29,21 +30,8 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     readOtherFile(graph, myGraph);
     std::cout<<"Reading successful"<<std::endl;
 
-    //Dijkstra
-    callDijkstra(myGraph, sourceNode, targetNode);
-    //Secure Bidirectional
-    int secureBidiALT;
-    int secureBidiA;
-    if (graph == "roadnetworks/bel.graph"){secureBidiALT=1; secureBidiA=1;}
-    if (graph == "roadnetworks/deu.graph"){secureBidiALT=1; secureBidiA=1;}
-    if (graph == "roadnetworks/eur.graph"){secureBidiALT=8; secureBidiA=4;}
-    if (graph == "roadnetworks/bel.graph"){secureBidiALT=2; secureBidiA=2;}
-    //A*
-    callAStar(myGraph, sourceNode, targetNode, secureBidiA);
-
-    //ALT Farthest
-    callALTFarthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph, secureBidiALT);
-
+    std::vector<std::pair<int, int>>generatePoints(myGraph, 10000, graph);
+    callExperimentDijkstra(myGraph, )
 
 
 }

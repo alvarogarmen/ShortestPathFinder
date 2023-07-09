@@ -73,7 +73,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     return minPath;
 }
 
-double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string exploredFileName, std::vector<std::vector<double>>& potentials) {
+double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string filename, std::vector<std::vector<double>>& potentials) {
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
 
@@ -87,17 +87,18 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
-    std::ofstream exploredNodeFile(exploredFileName);
+    std::ofstream exploredForwardFile(filename+"_Forward_explored");
+    std::ofstream exploredBackwardFile(filename+"_Backward_explored");
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
 
-        exploredNodeFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
+        exploredForwardFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
 
 
-        exploredNodeFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
+        exploredBackwardFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -150,7 +151,8 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             }
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
-            exploredNodeFile.close();
+            exploredForwardFile.close();
+            exploredBackwardFile.close();
             return minPath;
         }
     }
@@ -158,7 +160,87 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
 
 
-    exploredNodeFile.close();
+    exploredForwardFile.close();
+    exploredBackwardFile.close();
 
     return minPath;
+}
+
+double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode, std::vector<std::vector<double>>& potentials) {
+    APQ apqForward = APQ();
+    APQ apqBackward = APQ();
+
+    std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> visited;
+    double minPath = INT_MAX;
+    apqForward.insertNode(sourceNode - 1, 0);
+    apqBackward.insertNode(targetNode - 1, 0);
+    visited.push_back(sourceNode);
+    visited.push_back(targetNode);
+    distForward[sourceNode - 1] = 0;
+    distBackward[targetNode - 1] = 0;
+
+    while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
+
+        double forwardNode = apqForward.popMin();
+        double backwardNode = apqBackward.popMin();
+
+        double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
+        double endForwardEdge = myGraph.edgeStarts[forwardNode];
+
+        double startBackwardEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
+        double endBackwardEdge = myGraph.edgeStarts[backwardNode];
+
+        for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
+            double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
+            visited.push_back(forwardEdge);
+            double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
+
+            if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
+                distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
+
+                double forwardH = estimate(forwardEdge, targetNode-1, potentials);
+                double forwardF = distForward[forwardEdge] + forwardH;
+                if(forwardF+distBackward[forwardEdge] < minPath){
+                    minPath=distBackward[forwardEdge]+distForward[forwardEdge];
+                }
+
+
+                if (apqForward.contains(forwardEdge)) {
+                    apqForward.decreaseKey(forwardEdge, forwardF);
+                } else {
+                    apqForward.insertNode(forwardEdge, forwardF);
+                }
+            }
+        }
+
+        for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
+            double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
+            visited.push_back(backwardEdge);
+            double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
+
+            if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
+                distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
+
+                double backwardH = estimate(backwardEdge, sourceNode-1, potentials);
+                double backwardF = distBackward[backwardEdge] + backwardH;
+                if(backwardF+distForward[backwardEdge] < minPath){
+                    minPath=distForward[backwardEdge]+distBackward[backwardEdge];
+                }
+
+
+                if (apqBackward.contains(backwardEdge)) {
+                    apqBackward.decreaseKey(backwardEdge, backwardF);
+                } else {
+                    apqBackward.insertNode(backwardEdge, backwardF);
+                }
+            }
+        }
+        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
+            return visited.size();
+        }
+    }
+
+    return visited.size();
 }

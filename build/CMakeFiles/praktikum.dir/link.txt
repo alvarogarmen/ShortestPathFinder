@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/praktikum.dir/main.cpp.o CMakeFiles/praktikum.dir/argtable3.c.o -o praktikum 

@@ -74,6 +74,49 @@ double multiSourceDijkstra(Graph& myGraph, const std::vector<double>& sourceNode
     return farthestNode;
 }
 
+void writePotentialsToFile(const std::vector<std::vector<double>>& potentials, const std::string& filename) {
+    std::ofstream outputFile(filename);
+    if (!outputFile) {
+        std::cerr << "Error opening the file " << filename << std::endl;
+        return;
+    }
+
+    for (const auto& row : potentials) {
+        for (double value : row) {
+            outputFile << value << " ";
+        }
+        outputFile << std::endl;
+    }
+
+    outputFile.close();
+    std::cout << "Potentials have been written to the file: " << filename << std::endl;
+}
+
+std::vector<std::vector<double>> loadPotentials(const std::string& filename) {
+    std::vector<std::vector<double>> potentials;
+
+    std::ifstream inputFile(filename);
+    if (!inputFile) {
+        std::cerr << "Error opening the file " << filename << std::endl;
+        return potentials;
+    }
+
+    double value;
+    std::vector<double> row;
+
+    while (inputFile >> value) {
+        row.push_back(value);
+
+        if (inputFile.peek() == '\n') {
+            potentials.push_back(row);
+            row.clear();
+        }
+    }
+
+    inputFile.close();
+    return potentials;
+}
+
 
 std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
     std::vector<std::vector<double>> potentialsInverted;
