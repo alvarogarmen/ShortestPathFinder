@@ -46,7 +46,6 @@ double Dijkstra(Graph& myGraph, double& sourceNode, double& targetNode){
                 dist[edge] = dist[currentNode] + weight;
                 //Break if we have reached our destination
                 if (edge == targetNode-1){
-                    std::cout<<"Break early"<<std::endl;
                     return dist[edge];
                 }
                 //Decrease key operation if the node is already in APQ
@@ -61,7 +60,6 @@ double Dijkstra(Graph& myGraph, double& sourceNode, double& targetNode){
 
         }
     }
-    std::cout<<"All available edges relaxed, with source: "<< sourceNode<<", target: "<<targetNode<<" and distance: "<< dist[targetNode-1]<<std::endl;
     if (dist[targetNode-1]==INT_MAX){
         std::cout<<"WHAT"<<std::endl;
         return -1;                      //To symbolize that it is not reached
@@ -180,7 +178,6 @@ std::vector<double> DijkstraToALL(Graph myGraph, double sourceNode) {
 
         }
     }
-    std::cout << "All available edges relaxed, with source: " << sourceNode << std::endl;
 
 
     return dist;

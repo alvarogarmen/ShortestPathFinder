@@ -14,7 +14,7 @@
 #include "AStar.hh"
 #include "DijkstraBidirectional.hh"
 #include "ALT.hh"
-#include "ALT_Bidirectional.hh"
+
 #include "ALT-Landmarks.hh"
 #include "ProcessInput.hh"
 
@@ -26,7 +26,7 @@ std::vector<std::pair<int, int>> generatePoints(Graph myGraph, int numPoints, st
     std::mt19937 gen(rd());
     std::uniform_int_distribution<int> distribution(1, myGraph.nodes.size());
     std::string numPairs = std::to_string(numPoints);
-    std::ofstream outputFile(filename.substr(13, 3)+"_"+numPairs);
+    std::ofstream outputFile("experiments/"+filename.substr(13, 3)+"_"+numPairs);
 
     for (int i = 0; i < numPoints; ++i) {
         int randomInt1 = distribution(gen);
@@ -38,10 +38,10 @@ std::vector<std::pair<int, int>> generatePoints(Graph myGraph, int numPoints, st
     return pairs;
 }
 
-std::vector<std::pair<int, int>> readPairsFromFile(const std::string& filename) {
+std::vector<std::pair<int, int>> loadPoints(const std::string& filename) {
     std::vector<std::pair<int, int>> pairs;
 
-    std::ifstream inputFile(filename);
+    std::ifstream inputFile("experiments/"+filename);
     if (!inputFile) {
         std::cerr << "Error opening the file " << filename << std::endl;
         return pairs;
@@ -57,8 +57,8 @@ std::vector<std::pair<int, int>> readPairsFromFile(const std::string& filename) 
 }
 
 void callExperimentDijkstra(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename){
-    std::ofstream dijkstraTimes("dijkstraTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    std::ofstream dijkstraSearch("dijkstraSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream dijkstraTimes("experiments/dijkstraTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream dijkstraSearch("experiments/dijkstraSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     for (std::pair experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
@@ -72,8 +72,8 @@ void callExperimentDijkstra(Graph myGraph, std::vector<std::pair<int, int>> Poin
     }
 
     //Now Bidirectional
-    std::ofstream bidiDijkstraTimes("dijkstraBidiTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    std::ofstream bidiDijkstraSearch("dijkstraBidiSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream bidiDijkstraTimes("experiments/dijkstraBidiTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream bidiDijkstraSearch("experiments/dijkstraBidiSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     for (std::pair experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
@@ -89,8 +89,8 @@ void callExperimentDijkstra(Graph myGraph, std::vector<std::pair<int, int>> Poin
 }
 
 void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename){
-    std::ofstream aStarTimes("aStarTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    std::ofstream aStarSearch("aStarSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream aStarTimes("experiments/aStarTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream aStarSearch("experiments/aStarSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     for (std::pair experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
@@ -104,8 +104,8 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
     }
 
     //Now Bidirectional
-    std::ofstream bidiAStarTimes("aStarBidiTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    std::ofstream bidiAStarSearch("aStarBidiSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream bidiAStarTimes("experiments/aStarBidiTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream bidiAStarSearch("experiments/aStarBidiSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     for (std::pair experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
@@ -121,30 +121,34 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
 }
 
 
-void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename, int numLandmarks){
-    std::ofstream preTimes("ALTFarthestPreTimes_"+filename.substr(13,3));
-    for (int i = 2; i<=numLandmarks;){
-        auto proStart = std::chrono::high_resolution_clock::now();
-        std::vector<double> landmarksFarthest =farthestLandmarkSelection(myGraph, i, "Landmarks_Farthest_"+filename.substr(13,3));
-        auto proEnd = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double> proTime = proEnd-proStart;
-        preTimes<<proTime.count()<<" ";
-        proStart = std::chrono::high_resolution_clock::now();
-        std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFarthest);
-        proEnd =  std::chrono::high_resolution_clock::now();
-        proTime = proEnd - proStart;
-        preTimes<<proTime.count()<<std::endl;
-        writePotentialsToFile(potentials, "Potentials_Farthest_"+filename.substr(13,3)+std::to_string(potentials.size()));
-        i+=2;
+void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename, int numLandmarks, int newLandmarks){
+    std::ofstream preTimes("experiments/ALTFarthestPreTimes_"+filename.substr(13,3));
+    if (newLandmarks!=0) {
+        for (int i = 2; i <= numLandmarks;) {
+            auto proStart = std::chrono::high_resolution_clock::now();
+            std::vector<double> landmarksFarthest = farthestLandmarkSelection(myGraph, i, "Landmarks_Farthest_" +
+                                                                                          filename.substr(13, 3));
+            auto proEnd = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> proTime = proEnd - proStart;
+            preTimes << proTime.count() << " ";
+            proStart = std::chrono::high_resolution_clock::now();
+            std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFarthest);
+            proEnd = std::chrono::high_resolution_clock::now();
+            proTime = proEnd - proStart;
+            preTimes << proTime.count() << std::endl;
+            writePotentialsToFile(potentials,
+                                  "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(potentials.size()));
+            i += 2;
+        }
     }
     int i = 2;
     while(i<=numLandmarks) {
         std::vector<std::vector<double>> potentials = loadPotentials(
-                "Potentials_Farthest" + filename.substr(13, 3) + std::to_string(i));
+                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
         std::ofstream ALTFarthestTimes(
-                "ALTFarthestTimes_" + filename.substr(13, 3) + "_" +
+                "experiments/ALTFarthestTimes_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size()) + "_numLandmarks_" + std::to_string(i));
-        std::ofstream ALTFarthestSearch("ALTFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
+        std::ofstream ALTFarthestSearch("experiments/ALTFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size())+ "_numLandmarks_" + std::to_string(i));
         for (std::pair experiment: Points) {
             double sourceNode = experiment.first;
@@ -163,11 +167,11 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
     i=2;
     while(i<=numLandmarks) {
         std::vector<std::vector<double>> potentials = loadPotentials(
-                "Potentials_Farthest" + filename.substr(13, 3) + std::to_string(i));
+                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
         std::ofstream ALTBidiFarthestTimes(
-                "ALTBidiFarthestTimes_" + filename.substr(13, 3) + "_" +
+                "experiments/ALTBidiFarthestTimes_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size()) + "_numLandmarks_" + std::to_string(i));
-        std::ofstream ALTBidiFarthestSearch("ALTBidiFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
+        std::ofstream ALTBidiFarthestSearch("experiments/ALTBidiFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
                                 std::to_string(Points.size())+ "_numLandmarks_" + std::to_string(i));
         for (std::pair experiment: Points) {
             double sourceNode = experiment.first;
@@ -186,7 +190,5 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
 
 }
 
-void loadLandmarksExperiment(std::string filename, int numlandmarks){
 
-}
 #endif //PRAKTIKUM_EXPERIMENTS_HH

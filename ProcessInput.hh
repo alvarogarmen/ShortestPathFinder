@@ -67,12 +67,12 @@ void callAStar(Graph myGraph, double sourceNode, double targetNode, int secureBi
     AStarSaving(myGraph, sourceNode, targetNode);
 
     start=std::chrono::high_resolution_clock::now();
-    Dis = AStarBidirectional(myGraph, sourceNode, targetNode, secureBidirectional);
+    Dis = AStarBidirectional(myGraph, sourceNode, targetNode);
     end = std::chrono::high_resolution_clock::now();
     time = end - start;
     std::cout<<"A* Bidirectional: "<<Dis<<std::endl;
     std::cout<<"Took: "<<time.count()<<"s"<<std::endl;
-    AStarBidirectionalSaving(myGraph, sourceNode, targetNode, "AStar_Bidirectional_explored", secureBidirectional);
+    AStarBidirectionalSaving(myGraph, sourceNode, targetNode, "AStar_Bidirectional_explored");
 }
 
 
@@ -178,7 +178,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
 
 
 
-void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks, std::string filename, int secureBidirectional){
+void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int numLandmarks, int newLandmarks, std::string filename){
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<std::vector<double>> potentials;
     auto end = std::chrono::high_resolution_clock::now();
@@ -216,7 +216,8 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        std::vector<double> landmarksFarthest =farthestLandmarkSelection(myGraph, numLandmarks, "Landmarks_Farthest_"+filename.substr(13,3));
+        std::vector<double> landmarksFarthest =farthestLandmarkSelection(myGraph, numLandmarks, "Landmarks_Farthest_"+
+                                                                         filename.substr(13,3)+"_"+std::to_string(numLandmarks));
 
         std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarksFarthest);
         std::cout<<"Copy: "<<potentials.size()<<" "<<potentials[0].size()<<std::endl;

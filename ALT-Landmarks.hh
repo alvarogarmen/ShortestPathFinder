@@ -75,7 +75,7 @@ double multiSourceDijkstra(Graph& myGraph, const std::vector<double>& sourceNode
 }
 
 void writePotentialsToFile(const std::vector<std::vector<double>>& potentials, const std::string& filename) {
-    std::ofstream outputFile(filename);
+    std::ofstream outputFile("experiments/"+filename);
     if (!outputFile) {
         std::cerr << "Error opening the file " << filename << std::endl;
         return;
@@ -89,17 +89,18 @@ void writePotentialsToFile(const std::vector<std::vector<double>>& potentials, c
     }
 
     outputFile.close();
-    std::cout << "Potentials have been written to the file: " << filename << std::endl;
+    std::cout << "Potentials have been written to the file: " << "experiments/"+filename << std::endl;
 }
 
 std::vector<std::vector<double>> loadPotentials(const std::string& filename) {
     std::vector<std::vector<double>> potentials;
 
-    std::ifstream inputFile(filename);
+    std::ifstream inputFile("experiments/"+filename);
     if (!inputFile) {
         std::cerr << "Error opening the file " << filename << std::endl;
         return potentials;
     }
+    else {std::cout<<"Loading from: experiments/"+filename<<std::endl;}
 
     double value;
     std::vector<double> row;
@@ -127,69 +128,6 @@ std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, co
     return potentialsInverted;
 }
 
-
-std::vector<double> computeFarthestLandmarks(Graph myGraph, int numLandmarks, std::string filename) {
-    std::vector<double> landmarks;
-    std::vector<Node> nodes = myGraph.getNodes();
-    std::unordered_set<double> selectedNodes;  // To keep track of selected landmarks
-
-    // Select the first landmark node as the most southwestern one
-    int firstLandmark = 0;
-    for (Node node : myGraph.nodes){
-        if (node.coordinateX+node.coordinateY < myGraph.nodes[firstLandmark].coordinateX+myGraph.nodes[firstLandmark].coordinateY){
-            firstLandmark = node.nodeId;
-        }
-    }
-    landmarks.push_back(firstLandmark);
-    selectedNodes.insert(firstLandmark);
-
-    // Select the remaining landmarks
-    for (int i = 1; i < numLandmarks; i++) {
-        double maxDistance = 0;
-        int FarthestNode = -1;
-
-        // Find the node that is Farthest from the already selected landmarks
-        for (int j = 0; j < nodes.size(); j++) {
-            if (selectedNodes.find(j) == selectedNodes.end()) {
-                double minDistance = INT_MAX;
-
-                // Calculate the minimum distance to already selected landmarks
-                for (int landmark : landmarks) {
-                    double landmarkDistance = distance(myGraph.nodes[landmark], myGraph.nodes[j]);
-                    if (landmarkDistance < minDistance) {
-                        minDistance = landmarkDistance;
-                    }
-                }
-
-                // Update the Farthest node if it has the maximum minimum distance
-                if (minDistance > maxDistance) {
-                    maxDistance = minDistance;
-                    FarthestNode = j;
-                }
-            }
-        }
-
-        // Add the Farthest node as a landmark
-        landmarks.push_back(FarthestNode);
-        selectedNodes.insert(FarthestNode);
-    }
-    //save the landmarks to a file
-    std::ofstream file(filename);
-
-    for (double landmark : landmarks) {
-        file << landmark << std::endl;
-    }
-    file.close();
-    std::cout<<"Writing landmarks to "<<filename+"coord"<<std::endl;
-    std::ofstream file2(filename+"coord");
-
-    for (double landmark : landmarks) {
-        file2 << myGraph.getNode(landmark).coordinateX << " "<<myGraph.getNode(landmark).coordinateY << std::endl;
-    }
-    file2.close();
-    return landmarks;
-}
-
 std::vector<double> farthestLandmarkSelection(Graph& myGraph, int numLandmarks, std::string filename){
     std::vector<double> landmarks;
     std::unordered_set<double> selectedNodes;
@@ -213,14 +151,14 @@ std::vector<double> farthestLandmarkSelection(Graph& myGraph, int numLandmarks, 
     }
 
     //save the landmarks to a file
-    std::ofstream file(filename);
+    std::ofstream file("experiments/"+filename);
 
     for (double landmark : landmarks) {
         file << landmark << std::endl;
     }
     file.close();
-    std::cout<<"Writing landmarks to "<<filename+"coord"<<std::endl;
-    std::ofstream file2(filename+"coord");
+    std::cout<<"Writing landmarks to "<<"experiments/"+filename+"coord"<<std::endl;
+    std::ofstream file2("experiments/"+filename+"coord");
 
     for (double landmark : landmarks) {
         file2 << myGraph.getNode(landmark).coordinateX << " "<<myGraph.getNode(landmark).coordinateY << std::endl;
@@ -306,14 +244,14 @@ std::vector<double> avoidLandmarkSelection(Graph myGraph, int numLandmarks, std:
         selectedNodes.insert(nextLandmark);
     }
     //save the landmarks to a file
-    std::ofstream file(filename);
+    std::ofstream file("experiments/"+filename);
 
     for (double landmark : landmarks) {
         file << landmark << std::endl;
     }
     file.close();
     std::cout<<"Writing landmarks to "<<filename+"coord"<<std::endl;
-    std::ofstream file2(filename+"coord");
+    std::ofstream file2("experiments/"+filename+"coord");
 
     for (double landmark : landmarks) {
         file2 << myGraph.getNode(landmark).coordinateX << " "<<myGraph.getNode(landmark).coordinateY << std::endl;

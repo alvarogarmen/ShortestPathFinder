@@ -48,3 +48,6 @@ potentials_16_bel
 explored_nodes
 ALTFarthestBi_Forward_explored
 ALTFarthestBi_Backward_explored
+ALTAFarthestBidirectional_Backward_explored
+ALTAFarthestBidirectional_Forward_explored
+experiments/
