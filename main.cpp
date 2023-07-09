@@ -30,8 +30,12 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     readOtherFile(graph, myGraph);
     std::cout<<"Reading successful"<<std::endl;
 
-    std::vector<std::pair<int, int>>generatePoints(myGraph, 10000, graph);
-    callExperimentDijkstra(myGraph, )
+    std::vector<std::pair<int, int>> points = generatePoints(myGraph, 10000, graph);
+    callExperimentDijkstra(myGraph, points, graph);
+    callExperimentAStar(myGraph, points, graph);
+    //TODO: implement newLandmarks?
+    //TODO: Implement loadGeneratedPoints
+    callExperimentALT(myGraph, points, graph, numLandmarks);
 
 
 }
