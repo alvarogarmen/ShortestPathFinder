@@ -75,10 +75,9 @@ double DijkstraSaving(Graph myGraph, double sourceNode, double targetNode) {
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
 
-    std::ofstream exploredFile;  // File stream for explored nodes
-    std::ofstream pathFile;      // File stream for path
-    exploredFile.open("explored_nodes");  // Open explored nodes file
-    pathFile.open("path");                // Open path file
+    std::ofstream exploredFile("experiments/explored_nodes");  // File stream for explored nodes
+    std::ofstream pathFile("experiments/path");      // File stream for path
+
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
@@ -136,6 +135,56 @@ double DijkstraSaving(Graph myGraph, double sourceNode, double targetNode) {
         return -1;
     }
     return dist[targetNode - 1];
+}
+
+double DijkstraRank(Graph myGraph, double sourceNode, double targetNode) {
+    APQSaving apq;
+    std::set<double> visited;
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+
+    apq.insertNode(sourceNode - 1, 0, -1);
+    dist[sourceNode - 1] = 0;
+
+    while (!apq.isEmpty()) {
+        double currentNode = apq.popMin();
+        visited.insert(currentNode);
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+            // Calculate the weight as the Euclidean distance between the nodes
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+            // Relax the edge if a shorter path is found
+            if (dist[currentNode] + weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+                // Break if we have reached our destination
+                if (edge == targetNode - 1) {
+                    std::vector<double> path;
+                    path.push_back(edge);
+                    double prevNode = currentNode;
+                    while (prevNode != -1 && prevNode != sourceNode-1) {
+                        path.push_back(prevNode);
+                        prevNode = apq.getPrev(prevNode);
+                    }
+                    path.push_back(prevNode);
+
+                    return path.size()-1;
+                }
+
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, dist[edge], currentNode);
+                } else {
+                    apq.insertNode(edge, dist[edge], currentNode);
+                }
+            }
+        }
+    }
+    if (dist[targetNode - 1] == INT_MAX) {
+        return -1;
+    }
+    return -1;
 }
 
 std::vector<double> DijkstraToALL(Graph myGraph, double sourceNode) {

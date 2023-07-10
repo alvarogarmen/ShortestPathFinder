@@ -1,4 +1,7 @@
-double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, std::vector<std::vector<double>>& potentials) {
+double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
+                        std::vector<std::vector<double>>& potentials, std::vector<double>& landmarks) {
+    std::vector<double> usefulLandmarksForward = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
+    std::vector<double> usefulLandmarksBackward = findUsefulLandmarks(myGraph, targetNode, sourceNode, landmarks);
     //Get two priority queues, visited vectors and dist arrays
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
@@ -31,8 +34,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                double forwardH = estimate(forwardEdge, targetNode-1, potentials);
-
+                double forwardH = estimate(forwardEdge, targetNode-1, potentials, usefulLandmarksForward);
                 double forwardF = distForward[forwardEdge] + forwardH;
                 if(distForward[forwardEdge]+distBackward[forwardEdge] < minPath){
                     minPath=distForward[forwardEdge]+distBackward[forwardEdge];
@@ -52,7 +54,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = estimate(backwardEdge, sourceNode-1, potentials);
+                double backwardH = estimate(backwardEdge, sourceNode-1, potentials, usefulLandmarksBackward);
                 double backwardF = distBackward[backwardEdge] + backwardH;
                 if(distForward[backwardEdge]+distBackward[backwardEdge] < minPath){
                     minPath=distForward[backwardEdge]+distBackward[backwardEdge];
@@ -73,7 +75,10 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode, 
     return minPath;
 }
 
-double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string filename, std::vector<std::vector<double>>& potentials) {
+double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string filename,
+                              std::vector<std::vector<double>>& potentials, std::vector<double>& landmarks) {
+    std::vector<double> usefulLandmarksForward = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
+    std::vector<double> usefulLandmarksBackward = findUsefulLandmarks(myGraph, targetNode, sourceNode, landmarks);
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
 
@@ -87,8 +92,8 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
 
-    std::ofstream exploredForwardFile(filename+"_Forward_explored");
-    std::ofstream exploredBackwardFile(filename+"_Backward_explored");
+    std::ofstream exploredForwardFile("experiments/"+filename+"_Forward_explored");
+    std::ofstream exploredBackwardFile("experiments/"+filename+"_Backward_explored");
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
@@ -114,7 +119,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
                 forwardPath[forwardEdge] = forwardNode;
 
-                double forwardH = estimate(forwardEdge, targetNode-1, potentials);
+                double forwardH = estimate(forwardEdge, targetNode-1, potentials, usefulLandmarksForward);
                 double forwardF = distForward[forwardEdge] + forwardH;
                 if(forwardF+distBackward[forwardEdge] < minPath){
                     minPath=distBackward[forwardEdge]+distForward[forwardEdge];
@@ -136,7 +141,7 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = estimate(backwardEdge, sourceNode-1, potentials);
+                double backwardH = estimate(backwardEdge, sourceNode-1, potentials, usefulLandmarksBackward);
                 double backwardF = distBackward[backwardEdge] + backwardH;
                 if(backwardF+distForward[backwardEdge] < minPath){
                     minPath=distForward[backwardEdge]+distBackward[backwardEdge];
@@ -166,7 +171,11 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
     return minPath;
 }
 
-double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode, std::vector<std::vector<double>>& potentials) {
+double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode,
+                                   std::vector<std::vector<double>>& potentials, std::vector<double>& landmarks) {
+    std::vector<double> usefulLandmarksForward = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
+    std::vector<double> usefulLandmarksBackward = findUsefulLandmarks(myGraph, targetNode, sourceNode, landmarks);
+
     APQ apqForward = APQ();
     APQ apqBackward = APQ();
 
@@ -200,7 +209,7 @@ double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& t
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                double forwardH = estimate(forwardEdge, targetNode-1, potentials);
+                double forwardH = estimate(forwardEdge, targetNode-1, potentials, usefulLandmarksForward);
                 double forwardF = distForward[forwardEdge] + forwardH;
                 if(forwardF+distBackward[forwardEdge] < minPath){
                     minPath=distBackward[forwardEdge]+distForward[forwardEdge];
@@ -223,7 +232,7 @@ double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& t
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardH = estimate(backwardEdge, sourceNode-1, potentials);
+                double backwardH = estimate(backwardEdge, sourceNode-1, potentials, usefulLandmarksBackward);
                 double backwardF = distBackward[backwardEdge] + backwardH;
                 if(backwardF+distForward[backwardEdge] < minPath){
                     minPath=distForward[backwardEdge]+distBackward[backwardEdge];

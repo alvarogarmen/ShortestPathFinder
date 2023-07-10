@@ -12,7 +12,7 @@
 
 # =============================================================================
 # Project: praktikum
-# Configurations: Debug
+# Configurations: Release
 # =============================================================================
 
 #############################################
@@ -24,7 +24,7 @@ ninja_required_version = 1.5
 #############################################
 # Set configuration variable for custom commands.
 
-CONFIGURATION = Debug
+CONFIGURATION = Release
 # =============================================================================
 # Include auxiliary files.
 
@@ -49,15 +49,15 @@ cmake_ninja_workdir = C$:/Users/alvar/CLionProjects/praktikum/cmake-build-debug/
 
 build cmake_object_order_depends_target_praktikum: phony || CMakeFiles/praktikum.dir
 
-build CMakeFiles/praktikum.dir/main.cpp.obj: CXX_COMPILER__praktikum_Debug C$:/Users/alvar/CLionProjects/praktikum/main.cpp || cmake_object_order_depends_target_praktikum
+build CMakeFiles/praktikum.dir/main.cpp.obj: CXX_COMPILER__praktikum_Release C$:/Users/alvar/CLionProjects/praktikum/main.cpp || cmake_object_order_depends_target_praktikum
   DEP_FILE = CMakeFiles\praktikum.dir\main.cpp.obj.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -O3 -O3 -DNDEBUG -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\praktikum.dir
   OBJECT_FILE_DIR = CMakeFiles\praktikum.dir
 
-build CMakeFiles/praktikum.dir/argtable3.c.obj: C_COMPILER__praktikum_Debug C$:/Users/alvar/CLionProjects/praktikum/argtable3.c || cmake_object_order_depends_target_praktikum
+build CMakeFiles/praktikum.dir/argtable3.c.obj: C_COMPILER__praktikum_Release C$:/Users/alvar/CLionProjects/praktikum/argtable3.c || cmake_object_order_depends_target_praktikum
   DEP_FILE = CMakeFiles\praktikum.dir\argtable3.c.obj.d
-  FLAGS = -g -fdiagnostics-color=always
+  FLAGS = -O3 -O3 -DNDEBUG -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles\praktikum.dir
   OBJECT_FILE_DIR = CMakeFiles\praktikum.dir
 
@@ -69,8 +69,8 @@ build CMakeFiles/praktikum.dir/argtable3.c.obj: C_COMPILER__praktikum_Debug C$:/
 #############################################
 # Link the executable praktikum.exe
 
-build praktikum.exe: CXX_EXECUTABLE_LINKER__praktikum_Debug CMakeFiles/praktikum.dir/main.cpp.obj CMakeFiles/praktikum.dir/argtable3.c.obj
-  FLAGS = -g
+build praktikum.exe: CXX_EXECUTABLE_LINKER__praktikum_Release CMakeFiles/praktikum.dir/main.cpp.obj CMakeFiles/praktikum.dir/argtable3.c.obj
+  FLAGS = -O3 -O3 -DNDEBUG
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\praktikum.dir
   POST_BUILD = cd .

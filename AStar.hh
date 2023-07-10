@@ -64,10 +64,8 @@ double AStarSaving(Graph myGraph, double sourceNode, double targetNode) {
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
 
-    std::ofstream exploredFile;  // File stream for explored nodes
-    std::ofstream pathFile;      // File stream for path
-    exploredFile.open("AStar_explored_nodes.txt");  // Open explored nodes file
-    pathFile.open("AStar_path.txt");                // Open path file
+    std::ofstream exploredFile("experiments/AStar_explored_nodes");  // File stream for explored nodes
+    std::ofstream pathFile("experiments/AStar_path");      // File stream for path
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();

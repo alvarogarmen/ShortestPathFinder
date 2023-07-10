@@ -117,7 +117,7 @@ double BidirectionalDijkstraSaving(Graph& myGraph, double& sourceNode, double& t
 
     double bestPath = INT_MAX;
     double meetingNode = -1;
-    std::ofstream exploredNodeFile(exploredFileName);
+    std::ofstream exploredNodeFile("experiments/"+exploredFileName);
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();

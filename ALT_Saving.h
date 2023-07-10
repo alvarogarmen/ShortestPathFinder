@@ -14,7 +14,12 @@
 #include <set>
 #include <fstream>
 
-double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials, std::string exploredNodes, std::string path) {
+double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
+                 std::string exploredNodes, std::vector<double>& landmarks) {
+    std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
+    for (auto useful : usefulLandmarks){
+        std::cout<<useful<<std::endl;
+    }
     APQSaving apq = APQSaving();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -22,10 +27,12 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
 
-    std::ofstream exploredFile;  // File stream for explored nodes
-    std::ofstream pathFile;      // File stream for path
-    exploredFile.open(exploredNodes);  // Open explored nodes file
-    pathFile.open(path);                // Open path file
+    std::ofstream exploredFile("experiments/"+exploredNodes);  // File stream for explored nodes
+    std::ofstream usefulFile("experiments/"+exploredNodes+"_UsefulLandmarks");
+    for (auto i : usefulLandmarks){
+        usefulFile << myGraph.getNode(landmarks[i]).coordinateX << " " << myGraph.getNode(landmarks[i]).coordinateY <<std::endl;
+    }
+    usefulFile.close();
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
@@ -43,29 +50,13 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
             if (dist[currentNode] + weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
 
-                if (edge == targetNode - 1) {
-                    std::vector<double> path;
-                    path.push_back(edge);
-                    double prevNode = currentNode;
-                    while (prevNode != -1 && prevNode != sourceNode - 1) {
-                        path.push_back(prevNode);
-                        prevNode = apq.getPrev(prevNode);
-                    }
-                    path.push_back(prevNode);
-
-                    // Write the path to the file in reverse order
-                    for (int i = path.size() - 1; i >= 0; i--) {
-                        pathFile << myGraph.getNode(path[i]).coordinateX << " "
-                                 << myGraph.getNode(path[i]).coordinateY
-                                 << " " << path[i] << " " << std::endl;
-                    }
+                if (edge == targetNode -1){
 
                     exploredFile.close();  // Close the files before returning
-                    pathFile.close();
                     return dist[edge];
                 }
 
-                double h = estimate(edge, targetNode-1, potentials);
+                double h = estimate(edge, targetNode-1, potentials, usefulLandmarks);
                 double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {
@@ -85,7 +76,9 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
 }
 
 
-double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
+double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
+                      std::vector<double>& landmarks) {
+    std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     APQSaving apq = APQSaving();
     std::vector<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -113,7 +106,7 @@ double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const
                     return visited.size();
                 }
 
-                double h = estimate(edge, targetNode-1, potentials);
+                double h = estimate(edge, targetNode-1, potentials, usefulLandmarks);
                 double f = dist[edge] + h;
 
                 if (apq.contains(edge)) {

@@ -57,9 +57,10 @@ std::vector<std::pair<int, int>> loadPoints(const std::string& filename) {
 }
 
 void callExperimentDijkstra(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename){
+    std::ofstream dijkstraRanks("experiments/dijkstraRanks_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     std::ofstream dijkstraTimes("experiments/dijkstraTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     std::ofstream dijkstraSearch("experiments/dijkstraSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    for (std::pair experiment : Points){
+    for (auto experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
         auto start = std::chrono::high_resolution_clock::now();
@@ -67,14 +68,18 @@ void callExperimentDijkstra(Graph myGraph, std::vector<std::pair<int, int>> Poin
         //Stop the clock
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time = end - start;
-        dijkstraSearch<<DijkstraSearchSpace(myGraph, sourceNode, targetNode);
+        dijkstraRanks<<DijkstraRank(myGraph, sourceNode, targetNode)<<std::endl;
+        dijkstraSearch<<DijkstraSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
         dijkstraTimes<<time.count()<<std::endl;
     }
+    dijkstraRanks.close();
+    dijkstraTimes.close();
+    dijkstraSearch.close();
 
     //Now Bidirectional
     std::ofstream bidiDijkstraTimes("experiments/dijkstraBidiTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     std::ofstream bidiDijkstraSearch("experiments/dijkstraBidiSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    for (std::pair experiment : Points){
+    for (auto experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
         auto start = std::chrono::high_resolution_clock::now();
@@ -82,16 +87,18 @@ void callExperimentDijkstra(Graph myGraph, std::vector<std::pair<int, int>> Poin
         //Stop the clock
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time = end - start;
-        bidiDijkstraSearch<<BidirectionalDijkstraSearchSpace(myGraph, sourceNode, targetNode);
+        bidiDijkstraSearch<<BidirectionalDijkstraSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
         bidiDijkstraTimes<<time.count()<<std::endl;
     }
+    bidiDijkstraSearch.close();
+    bidiDijkstraTimes.close();
 
 }
 
 void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename){
     std::ofstream aStarTimes("experiments/aStarTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     std::ofstream aStarSearch("experiments/aStarSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    for (std::pair experiment : Points){
+    for (auto experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
         auto start = std::chrono::high_resolution_clock::now();
@@ -102,11 +109,13 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
         aStarTimes<<time.count()<<std::endl;
         aStarSearch<<AStarSearchSpace(myGraph, sourceNode, targetNode);
     }
+    aStarSearch.close();
+    aStarTimes.close();
 
     //Now Bidirectional
     std::ofstream bidiAStarTimes("experiments/aStarBidiTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
     std::ofstream bidiAStarSearch("experiments/aStarBidiSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
-    for (std::pair experiment : Points){
+    for (auto experiment : Points){
         double sourceNode = experiment.first;
         double targetNode = experiment.second;
         auto start = std::chrono::high_resolution_clock::now();
@@ -114,14 +123,17 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
         //Stop the clock
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time = end - start;
-        bidiAStarSearch<<AStarBidirectionalSearchSpace(myGraph, sourceNode, targetNode);
+        bidiAStarSearch<<AStarBidirectionalSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
         bidiAStarTimes<<time.count()<<std::endl;
     }
+    bidiAStarSearch.close();
+    bidiAStarTimes.close();
 
 }
 
 
-void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename, int numLandmarks, int newLandmarks){
+void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, std::string filename,
+                       int numLandmarks, int newLandmarks){
     std::ofstream preTimes("experiments/ALTFarthestPreTimes_"+filename.substr(13,3));
     if (newLandmarks!=0) {
         for (int i = 2; i <= numLandmarks;) {
@@ -140,51 +152,68 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
                                   "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(potentials.size()));
             i += 2;
         }
+        preTimes.close();
     }
     int i = 2;
     while(i<=numLandmarks) {
         std::vector<std::vector<double>> potentials = loadPotentials(
                 "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+
+        std::vector<double> landmarks = loadLandmarks(
+                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+
         std::ofstream ALTFarthestTimes(
                 "experiments/ALTFarthestTimes_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size()) + "_numLandmarks_" + std::to_string(i));
+
         std::ofstream ALTFarthestSearch("experiments/ALTFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size())+ "_numLandmarks_" + std::to_string(i));
-        for (std::pair experiment: Points) {
+
+        for (auto experiment: Points) {
             double sourceNode = experiment.first;
             double targetNode = experiment.second;
             auto start = std::chrono::high_resolution_clock::now();
-            ALT(myGraph, sourceNode, targetNode, potentials);
+            ALT(myGraph, sourceNode, targetNode, potentials, landmarks);
             //Stop the clock
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time = end - start;
             ALTFarthestTimes << time.count() << std::endl;
-            ALTFarthestSearch << ALTSearchSpace(myGraph, sourceNode, targetNode, potentials);
+            ALTFarthestSearch << ALTSearchSpace(myGraph, sourceNode, targetNode, potentials, landmarks)<<std::endl;
         }
         i+=2;
+        ALTFarthestSearch.close();
+        ALTFarthestTimes.close();
     }
     //Now Bidirectional
     i=2;
     while(i<=numLandmarks) {
         std::vector<std::vector<double>> potentials = loadPotentials(
                 "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+
+        std::vector<double> landmarks = loadLandmarks(
+                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+
         std::ofstream ALTBidiFarthestTimes(
                 "experiments/ALTBidiFarthestTimes_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size()) + "_numLandmarks_" + std::to_string(i));
+
         std::ofstream ALTBidiFarthestSearch("experiments/ALTBidiFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
                                 std::to_string(Points.size())+ "_numLandmarks_" + std::to_string(i));
-        for (std::pair experiment: Points) {
+
+        for (auto experiment: Points) {
             double sourceNode = experiment.first;
             double targetNode = experiment.second;
             auto start = std::chrono::high_resolution_clock::now();
-            ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
+            ALTBidirectional(myGraph, sourceNode, targetNode, potentials, landmarks);
             //Stop the clock
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time = end - start;
             ALTBidiFarthestTimes << time.count() << std::endl;
-            ALTBidiFarthestSearch << ALTBidirectionalSearchSpace(myGraph, sourceNode, targetNode, potentials);
+            ALTBidiFarthestSearch << ALTBidirectionalSearchSpace(myGraph, sourceNode, targetNode, potentials, landmarks)<<std::endl;
         }
         i+=2;
+        ALTBidiFarthestTimes.close();
+        ALTBidiFarthestSearch.close();
     }
 
 
