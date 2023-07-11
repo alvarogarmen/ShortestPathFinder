@@ -17,9 +17,6 @@
 double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
                  std::string exploredNodes, std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
-    for (auto useful : usefulLandmarks){
-        std::cout<<useful<<std::endl;
-    }
     APQSaving apq = APQSaving();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);

@@ -7,7 +7,10 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     APQ apqBackward = APQ();
 
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityForDist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityBackDist(myGraph.nodes.size(), INT_MAX);
+
     // Init the minPath variable to infinity. If the current bestPath gets higher than this variable, we terminate
     double minPath = INT_MAX;
     apqForward.insertNode(sourceNode - 1, 0);
@@ -33,9 +36,12 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
+                priorityForDist[forwardEdge] = priorityForDist[forwardNode] -
+                                               estimate(forwardNode, targetNode - 1, potentials,usefulLandmarksForward) +
+                                               forwardWeight +
+                                               estimate(forwardEdge, targetNode - 1, potentials, usefulLandmarksForward);
 
-                double forwardH = estimate(forwardEdge, targetNode-1, potentials, usefulLandmarksForward);
-                double forwardF = distForward[forwardEdge] + forwardH;
+                double forwardF = priorityForDist[forwardEdge];
                 if(distForward[forwardEdge]+distBackward[forwardEdge] < minPath){
                     minPath=distForward[forwardEdge]+distBackward[forwardEdge];
                 }
@@ -53,9 +59,12 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
+                priorityBackDist[backwardEdge] = priorityForDist[backwardNode] -
+                                               estimate(backwardNode, sourceNode - 1, potentials,usefulLandmarksForward) +
+                                               backwardWeight +
+                                               estimate(backwardEdge, sourceNode - 1, potentials, usefulLandmarksForward);
 
-                double backwardH = estimate(backwardEdge, sourceNode-1, potentials, usefulLandmarksBackward);
-                double backwardF = distBackward[backwardEdge] + backwardH;
+                double backwardF = priorityForDist[backwardEdge];
                 if(distForward[backwardEdge]+distBackward[backwardEdge] < minPath){
                     minPath=distForward[backwardEdge]+distBackward[backwardEdge];
                 }

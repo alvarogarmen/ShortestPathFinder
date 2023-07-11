@@ -14,6 +14,7 @@ public:
         this->coordinateY=-1;
         this->outDegree = -1;
         this->nodeId = -1;
+
     };
     Node(double degree, double coordinateX, double coordinateY, double nodeId) {
         this->outDegree = degree;

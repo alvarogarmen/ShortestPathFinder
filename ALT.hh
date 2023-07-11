@@ -96,9 +96,12 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
     APQ apq = APQ();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
+
 
     apq.insertNode(sourceNode - 1, 0);
     dist[sourceNode - 1] = 0;
+    priorityDist[sourceNode - 1] = 0;
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
@@ -114,14 +117,11 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
 
             if (dist[currentNode]+ weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
-
+                priorityDist[edge] = priorityDist[currentNode] - estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) + weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
                 if (edge == targetNode-1){
                     return dist[edge];
                 }
-
-                double h = estimate(edge, targetNode-1, potentials, usefulLandmarks);
-                double f = dist[edge]+h;
-
+                double f = priorityDist[edge];
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f);
                 } else {

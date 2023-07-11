@@ -55,7 +55,7 @@ void callDijkstra(Graph myGraph, double sourceNode, double targetNode){
     BidirectionalDijkstraSaving(myGraph, sourceNode, targetNode, "DijkstraBidi_explored");
 }
 
-void callAStar(Graph myGraph, double sourceNode, double targetNode, int secureBidirectional){
+void callAStar(Graph myGraph, double sourceNode, double targetNode){
     auto start = std::chrono::high_resolution_clock::now();
     double Dis = AStar(myGraph, sourceNode, targetNode);
     //Stop the clock

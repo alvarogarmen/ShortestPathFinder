@@ -26,6 +26,7 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     std::cout<<"Reading successful"<<std::endl;
     std::vector<std::pair<int, int>> points;
     callDijkstra(myGraph, sourceNode, targetNode);
+    callAStar(myGraph, sourceNode, targetNode);
     callALTFarthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph);
     if (newPoints!=0){
         points = generatePoints(myGraph, numPoints, graph);

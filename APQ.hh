@@ -82,6 +82,7 @@ double APQ::popMin() {
     } else {
         heap.pop_back();
     }
+
     return minValue;
 }
 
