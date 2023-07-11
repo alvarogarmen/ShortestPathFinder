@@ -19,7 +19,7 @@
 
 double multiSourceDijkstra(Graph& myGraph, const std::vector<double>& sourceNodes) {
     // Get a priority queue
-    APQ apq = APQ();
+    APQ apq = APQ(myGraph.nodeCount);
 
     // Initialize the distances to infinity
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);

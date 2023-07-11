@@ -93,8 +93,7 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
            std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
 
-    APQ apq = APQ();
-    std::set<double> visited;
+    APQ apq = APQ(myGraph.nodeCount);
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
@@ -105,8 +104,6 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
-        visited.insert(currentNode);
-
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];
@@ -117,7 +114,9 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
 
             if (dist[currentNode]+ weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
-                priorityDist[edge] = priorityDist[currentNode] - estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) + weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
+                priorityDist[edge] = priorityDist[currentNode] -
+                                     estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) +
+                                     weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
                 if (edge == targetNode-1){
                     return dist[edge];
                 }

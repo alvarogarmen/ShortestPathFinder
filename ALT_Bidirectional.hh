@@ -3,9 +3,11 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     std::vector<double> usefulLandmarksForward = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     std::vector<double> usefulLandmarksBackward = findUsefulLandmarks(myGraph, targetNode, sourceNode, landmarks);
     //Get two priority queues, visited vectors and dist arrays
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
-
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
+    std::vector<bool> visitedForward(myGraph.nodes.size(), false);
+    std::vector<bool> visitedBackward(myGraph.nodes.size(), false);
+    bool meeting = false;
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> priorityForDist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
@@ -17,11 +19,14 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
+    visitedForward[sourceNode-1] = 0;
+    visitedBackward[targetNode-1] = 0;
 
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
+
 
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
@@ -33,6 +38,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
         for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
+            visitedForward[forwardEdge]=true;
+
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
@@ -50,19 +57,23 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 } else {
                     apqForward.insertNode(forwardEdge, forwardF);
                 }
+                if(visitedBackward[forwardEdge]){
+                    meeting=true;
+                }
             }
         }
 
         for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
+            visitedBackward[backwardNode]=true;
 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
                 priorityBackDist[backwardEdge] = priorityForDist[backwardNode] -
-                                               estimate(backwardNode, sourceNode - 1, potentials,usefulLandmarksForward) +
+                                               estimate(backwardNode, sourceNode - 1, potentials,usefulLandmarksBackward) +
                                                backwardWeight +
-                                               estimate(backwardEdge, sourceNode - 1, potentials, usefulLandmarksForward);
+                                               estimate(backwardEdge, sourceNode - 1, potentials, usefulLandmarksBackward);
 
                 double backwardF = priorityForDist[backwardEdge];
                 if(distForward[backwardEdge]+distBackward[backwardEdge] < minPath){
@@ -74,9 +85,13 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 } else {
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
+                if (visitedForward[backwardEdge]){
+                    meeting = true;
+                }
             }
         }
-        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
+
+        if (meeting){
             return minPath;
         }
     }
@@ -88,9 +103,10 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
                               std::vector<std::vector<double>>& potentials, std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarksForward = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     std::vector<double> usefulLandmarksBackward = findUsefulLandmarks(myGraph, targetNode, sourceNode, landmarks);
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
-
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
+    std::vector<double> forwardVisited;
+    std::vector<double> backwardVisited;
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> forwardPath(myGraph.nodes.size(), -1);
@@ -107,12 +123,8 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
 
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
-
-
-        exploredForwardFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
-
-
-        exploredBackwardFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
+        forwardVisited.push_back(forwardNode);
+        backwardVisited.push_back(backwardNode);
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -165,14 +177,16 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             }
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
-            exploredForwardFile.close();
-            exploredBackwardFile.close();
-            return minPath;
+            break;
         }
     }
 
-
-
+    for(auto forwardNode : forwardVisited){
+        exploredForwardFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
+    }
+    for(auto backwardNode : backwardVisited){
+        exploredBackwardFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
+    }
 
     exploredForwardFile.close();
     exploredBackwardFile.close();
@@ -185,8 +199,8 @@ double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& t
     std::vector<double> usefulLandmarksForward = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     std::vector<double> usefulLandmarksBackward = findUsefulLandmarks(myGraph, targetNode, sourceNode, landmarks);
 
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
 
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);

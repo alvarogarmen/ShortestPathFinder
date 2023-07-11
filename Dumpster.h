@@ -90,14 +90,9 @@ void BiBiALT (Graph& g, int source, int target, std::vector<std::vector<double>>
                 return;
         }*/
 
-if(Qf.top().second >= mu || Qb.top().second >= mu) {
-std::cout<<"distance has been found with Bidirectional Dijkstra between " << source << " and "  << target << " it is " << mu <<std::endl;
-return;
-}
 
- }
-    return;
-}
+
+
 /*
 double AStarBidirectionalSaving(Graph myGraph, double sourceNode, double targetNode, const std::string& exploredFileName, const std::string& pathFileName) {
     APQ forwardAPQ = APQ();

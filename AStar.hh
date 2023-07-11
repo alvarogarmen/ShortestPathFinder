@@ -13,7 +13,7 @@
 #include <set>
 
 double AStar(Graph& myGraph, double& sourceNode, double& targetNode) {
-    APQ apq = APQ();
+    APQ apq = APQ(myGraph.nodeCount);
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
 
     apq.insertNode(sourceNode - 1, 0);

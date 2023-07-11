@@ -21,7 +21,7 @@ double Dijkstra(Graph& myGraph, double& sourceNode, double& targetNode){
         return 0;
     }
     //Get a priority queue
-    APQ apq = APQ();
+    APQ apq = APQ(myGraph.nodeCount);
 
     //Initialize the distances to infinity
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
@@ -189,7 +189,7 @@ double DijkstraRank(Graph myGraph, double sourceNode, double targetNode) {
 
 std::vector<double> DijkstraToALL(Graph myGraph, double sourceNode) {
     //Get a priority queue
-    APQ apq = APQ();
+    APQ apq = APQ(myGraph.nodeCount);
 
     //Initialize the distances to infinity
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);

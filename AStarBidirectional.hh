@@ -8,11 +8,12 @@
 #include <set>
 double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode) {
     //Get two priority queues, visited vectors and dist arrays
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
 
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
+
     // Init the minPath variable to infinity. If the current bestPath gets higher than this variable, we terminate
     double minPath = INT_MAX;
     apqForward.insertNode(sourceNode - 1, 0);
@@ -78,8 +79,8 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 }
 
 double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string exploredFileName) {
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> forwardPath(myGraph.nodes.size(), -1);
@@ -89,18 +90,17 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
+    std::vector<double> forwardVisited;
+    std::vector<double> backwardVisited;
 
-    std::ofstream exploredNodeFile(exploredFileName);
+    std::ofstream exploredForwardFile("experiments/"+exploredFileName+"_forward");
+    std::ofstream exploredBackwardFile("experiments/"+exploredFileName+"_backward");
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
-
-
-        exploredNodeFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
-
-
-        exploredNodeFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
+        backwardVisited.push_back(backwardNode);
+        forwardVisited.push_back(forwardNode);
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -153,23 +153,27 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
             }
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
-            exploredNodeFile.close();
-            return minPath;
+            break;
         }
     }
 
+    for (auto forwardNode : forwardVisited){
+        exploredForwardFile << myGraph.getNode(forwardNode).coordinateX << " " << myGraph.getNode(forwardNode).coordinateY << std::endl;  // Write explored node to the file
+    }
+    for (auto backwardNode : backwardVisited){
+        exploredBackwardFile << myGraph.getNode(backwardNode).coordinateX << " " << myGraph.getNode(backwardNode).coordinateY << std::endl;  // Write explored node to the file
 
-
-
-    exploredNodeFile.close();
+    }
+    exploredForwardFile.close();
+    exploredBackwardFile.close();
 
     return minPath;
 }
 
 
 double AStarBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode) {
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
     std::vector<double> visited;
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);

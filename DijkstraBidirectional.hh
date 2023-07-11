@@ -12,8 +12,8 @@
 #include "Dijkstra.hh"
 
 double BidirectionalDijkstra(Graph& myGraph, double& sourceNode, double& targetNode) {
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
     std::vector<bool> visitedForward(myGraph.nodes.size());
     std::vector<bool> visitedBackward(myGraph.nodes.size());
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
@@ -101,8 +101,8 @@ double BidirectionalDijkstra(Graph& myGraph, double& sourceNode, double& targetN
 }
 
 double BidirectionalDijkstraSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string exploredFileName) {
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
     std::set<double> visitedForward;
     std::set<double> visitedBackward;
     std::vector<double> distForward(myGraph.nodes.size(), INT_MAX);
@@ -201,8 +201,8 @@ double BidirectionalDijkstraSaving(Graph& myGraph, double& sourceNode, double& t
 }
 
 double BidirectionalDijkstraSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode) {
-    APQ apqForward = APQ();
-    APQ apqBackward = APQ();
+    APQ apqForward = APQ(myGraph.nodeCount);
+    APQ apqBackward = APQ(myGraph.nodeCount);
     std::set<double> visitedForward;
     std::set<double> visitedBackward;
     std::vector<double> visited;

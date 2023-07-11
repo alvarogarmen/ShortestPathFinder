@@ -20,6 +20,7 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
     APQSaving apq = APQSaving();
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
@@ -34,8 +35,6 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
         visited.insert(currentNode);
-        exploredFile << myGraph.getNode(currentNode).coordinateX << " " << myGraph.getNode(currentNode).coordinateY << std::endl;  // Write explored node to the file
-
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];
@@ -48,13 +47,11 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
                 dist[edge] = dist[currentNode] + weight;
 
                 if (edge == targetNode -1){
-
-                    exploredFile.close();  // Close the files before returning
-                    return dist[edge];
+                    break;
                 }
+                priorityDist[edge] = priorityDist[currentNode] - estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) + weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
 
-                double h = estimate(edge, targetNode-1, potentials, usefulLandmarks);
-                double f = dist[edge] + h;
+                double f = priorityDist[edge];
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f, currentNode);
@@ -64,12 +61,10 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
             }
         }
     }
-
-    std::cout << "All available edges relaxed" << std::endl;
-    if (dist[targetNode - 1] == INT_MAX) {
-        return -1;
+    for (auto currentNode : visited){
+        exploredFile << myGraph.getNode(currentNode).coordinateX << " " << myGraph.getNode(currentNode).coordinateY << std::endl;  // Write explored node to the file
     }
-    return dist[targetNode - 1];
+    return dist[targetNode-1];
 }
 
 

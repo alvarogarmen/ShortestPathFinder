@@ -10,7 +10,7 @@
 
 class APQ{
 public:
-
+    APQ(double size);
     void insertNode(double node, double priority);      //Insert a node
     void shiftDown(int i);                              //Shift down operation
     void shiftUp(int i);                                //Shift up operation
@@ -26,11 +26,15 @@ public:
     // Vector with the node and their priority, aka our priority queue. Left is nodeId and right is the priority
     std::vector<std::pair<double, double>> heap;
     // A hash table that maps values to their indices in the heap. Only important here
-    std::unordered_map<double, int> index;
+    std::vector<int> index;
 };
+
+APQ::APQ(double size) {
+    this->index=std::vector<int>(size);
+}
 void APQ::insertNode(double node, double priority){
     heap.emplace_back(node, priority);
-    index[node] = heap.size() - 1;
+    index[node] = heap.size()-1;
     shiftUp(heap.size() - 1);
 }
 
@@ -73,7 +77,7 @@ double APQ::popMin() {
         throw std::out_of_range("Priority queue is empty.");
     }
     double minValue = heap[0].first;
-    index.erase(minValue);
+    index[minValue] = -1;
     if (heap.size() > 1) {
         heap[0] = std::move(heap.back());
         index[heap[0].first] = 0;
@@ -94,8 +98,8 @@ std::pair<double, double> APQ::getMin() {
 }
 
 void APQ::decreaseKey(double node, double value) {
-    if (index.find(node) == index.end()) {
-        throw std::invalid_argument("Value not in priority queue.");
+    if (index[node] == -1){
+        throw std::invalid_argument("Value not in priority queue");
     }
     int i = index[node];
     if (value > heap[i].second) {
@@ -106,6 +110,6 @@ void APQ::decreaseKey(double node, double value) {
 }
 
 bool APQ::contains(double node) {
-    return index.find(node) != index.end();
+    return index[node] != -1;
 }
 #endif
