@@ -17,6 +17,16 @@ double estimate(double source, double target, const std::vector<std::vector<doub
                 std::vector<double> usefulLandmarks) {
     double potential=0;
     //TODO: Inverted!!
+    if (usefulLandmarks.empty()){
+        for (int i = 0; i<potentials.size(); i++){
+            double potentialPlus = potentials[i][target] - potentials[i][source];
+            double potentialMinus = potentials[i][source] - potentials[i][target];
+            if(potential < potentialMinus or potential < potentialPlus){
+                potential = std::max(potentialMinus, potentialPlus);
+            }
+        }
+        return potential;
+    }
     for (int i : usefulLandmarks) {
         double potentialPlus = potentials[i][target] - potentials[i][source];
         double potentialMinus = potentials[i][source] - potentials[i][target];
@@ -92,7 +102,6 @@ std::vector<double> findUsefulLandmarks(Graph& myGraph, const double& sourceNode
 double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials,
            std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
-
     APQ apq = APQ(myGraph.nodeCount);
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);

@@ -60,7 +60,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 } else {
                     apqForward.insertNode(forwardEdge, forwardF);
                 }
-                if(visitedBackward[forwardEdge]== true){
+                if(visitedBackward[forwardEdge]){
                     return minPath;
                 }
             }
@@ -88,7 +88,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 } else {
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
-                if (visitedForward[backwardEdge]==true){
+                if (visitedForward[backwardEdge]){
                     return minPath;
                 }
             }

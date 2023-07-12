@@ -17,12 +17,12 @@
 double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
                  std::string exploredNodes, std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
-    APQSaving apq = APQSaving();
+    APQ apq = APQ(myGraph.nodeCount);
     std::set<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
-    apq.insertNode(sourceNode - 1, 0, -1);
+    apq.insertNode(sourceNode - 1, 0);
     dist[sourceNode - 1] = 0;
 
     std::ofstream exploredFile("experiments/"+exploredNodes);  // File stream for explored nodes
@@ -47,16 +47,21 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
                 dist[edge] = dist[currentNode] + weight;
 
                 if (edge == targetNode -1){
-                    break;
+                    for (auto currentNode : visited){
+                        exploredFile << myGraph.getNode(currentNode).coordinateX << " " << myGraph.getNode(currentNode).coordinateY << std::endl;  // Write explored node to the file
+                    }
+                    return dist[edge];
                 }
-                priorityDist[edge] = priorityDist[currentNode] - estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) + weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
+                priorityDist[edge] = priorityDist[currentNode] -
+                                     estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) +
+                                     weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
 
                 double f = priorityDist[edge];
 
                 if (apq.contains(edge)) {
-                    apq.decreaseKey(edge, f, currentNode);
+                    apq.decreaseKey(edge, f);
                 } else {
-                    apq.insertNode(edge, f, currentNode);
+                    apq.insertNode(edge, f);
                 }
             }
         }
