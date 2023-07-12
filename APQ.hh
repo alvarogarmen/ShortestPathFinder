@@ -30,12 +30,12 @@ public:
 };
 
 APQ::APQ(double size) {
-    this->index=std::vector<int>(size);
+    this->index.resize(size, -1);
 }
 void APQ::insertNode(double node, double priority){
     heap.emplace_back(node, priority);
     index[node] = heap.size()-1;
-    shiftUp(heap.size() - 1);
+    shiftUp(index[node]);
 }
 
 void APQ::shiftDown(int i) {
