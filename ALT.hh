@@ -13,7 +13,7 @@
 #include <unordered_map>
 #include <algorithm>
 
-double estimate(double source, double target, const std::vector<std::vector<double>>& potentials,
+double estimateUseful(double source, double target, const std::vector<std::vector<double>>& potentials,
                 std::vector<double> usefulLandmarks) {
     double potential=0;
     //TODO: Inverted!!
@@ -38,8 +38,21 @@ double estimate(double source, double target, const std::vector<std::vector<doub
 
     return potential;
 }
+double estimate(double source, double target, const std::vector<std::vector<double>>& potentials) {
+    double potential=0;
+    //TODO: Inverted!!
+    for (int i = 0; i<potentials.size(); i++){
+        double potentialPlus = potentials[i][target] - potentials[i][source];
+        double potentialMinus = potentials[i][source] - potentials[i][target];
+        if(potential < potentialMinus or potential < potentialPlus){
+            potential = std::max(potentialMinus, potentialPlus);
+        }
+    }
+    return potential;
+}
 void calculateEndPoints(const Node& A, const Node& B, Node& End1, Node& End2) {
     Node AB = { B.coordinateX - A.coordinateX, B.coordinateY - A.coordinateY };
+    int scale = 3;
     double length = sqrt(AB.coordinateX * AB.coordinateX + AB.coordinateY * AB.coordinateY);
     double angle_degrees = 15.0;
     double angle_radians = angle_degrees * M_PI / 180.0;
@@ -48,14 +61,14 @@ void calculateEndPoints(const Node& A, const Node& B, Node& End1, Node& End2) {
 
     // Calculate End1
     double end1_angle = atan2(AB.coordinateY, AB.coordinateX) - angle_radians;
-    double end1_x = B.coordinateX + length * cos(end1_angle);
-    double end1_y = B.coordinateY + length * sin(end1_angle);
+    double end1_x = B.coordinateX + scale*length * cos(end1_angle);
+    double end1_y = B.coordinateY + scale*length * sin(end1_angle);
     End1 = { end1_x, end1_y };
 
     // Calculate End2
     double end2_angle = atan2(AB.coordinateY, AB.coordinateX) + angle_radians;
-    double end2_x = B.coordinateX + length * cos(end2_angle);
-    double end2_y = B.coordinateY + length * sin(end2_angle);
+    double end2_x = B.coordinateX + scale*length * cos(end2_angle);
+    double end2_y = B.coordinateY + scale*length * sin(end2_angle);
     End2 = { end2_x, end2_y };
 }
 
@@ -99,7 +112,54 @@ std::vector<double> findUsefulLandmarks(Graph& myGraph, const double& sourceNode
 }
 
 
-double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials,
+double ALT(const Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
+    APQ apq = APQ(myGraph.nodeCount);
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
+
+
+    apq.insertNode(sourceNode - 1, 0);
+    dist[sourceNode - 1] = 0;
+
+    while (!apq.isEmpty()) {
+        double currentNode = apq.popMin();
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+            if (dist[currentNode]+ weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+
+                if (edge == targetNode-1){
+                    return dist[edge];
+                }
+                priorityDist[edge] = priorityDist[currentNode] -
+                                               estimate(currentNode, targetNode - 1, potentials) +
+                                               weight +
+                                               estimate(edge, targetNode - 1, potentials);
+
+                double f = priorityDist[edge];
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, f);
+                } else {
+                    apq.insertNode(edge, f);
+                }
+            }
+        }
+    }
+
+    std::cout << "All available edges relaxed" << std::endl;
+    if (dist[targetNode - 1] == INT_MAX) {
+        return -1;
+    }
+    return dist[targetNode - 1];
+}
+
+double ALTUseful(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials,
            std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     APQ apq = APQ(myGraph.nodeCount);
@@ -124,8 +184,8 @@ double ALT(Graph& myGraph, double& sourceNode, double& targetNode, const std::ve
             if (dist[currentNode]+ weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
                 priorityDist[edge] = priorityDist[currentNode] -
-                                     estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) +
-                                     weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
+                                     estimateUseful(currentNode, targetNode - 1, potentials, usefulLandmarks) +
+                                     weight + estimateUseful(edge, targetNode - 1, potentials, usefulLandmarks);
                 if (edge == targetNode-1){
                     return dist[edge];
                 }

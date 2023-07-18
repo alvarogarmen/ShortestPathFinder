@@ -91,27 +91,29 @@ void writePotentialsToFile(const std::vector<std::vector<double>>& potentials, c
     outputFile.close();
     std::cout << "Potentials have been written to the file: " << "experiments/"+filename << std::endl;
 }
-
 std::vector<std::vector<double>> loadPotentials(const std::string& filename) {
     std::vector<std::vector<double>> potentials;
 
-    std::ifstream inputFile("experiments/"+filename);
+    std::ifstream inputFile("experiments/" + filename);
     if (!inputFile) {
         std::cerr << "Error opening the file " << filename << std::endl;
         return potentials;
     }
-    else {std::cout<<"Loading from: experiments/"+filename<<std::endl;}
+    else {
+        std::cout << "Loading from: experiments/" + filename << std::endl;
+    }
 
     double value;
     std::vector<double> row;
 
-    while (inputFile >> value) {
-        row.push_back(value);
-
-        if (inputFile.peek() == '\n') {
-            potentials.push_back(row);
-            row.clear();
+    std::string line;
+    while (std::getline(inputFile, line)) {
+        std::istringstream iss(line);
+        while (iss >> value) {
+            row.push_back(value);
         }
+        potentials.push_back(row);
+        row.clear();
     }
 
     inputFile.close();
@@ -119,7 +121,8 @@ std::vector<std::vector<double>> loadPotentials(const std::string& filename) {
 }
 
 
-std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, const std::vector<double>& landmarks){
+
+std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph& myGraph, const std::vector<double>& landmarks){
     std::vector<std::vector<double>> potentialsInverted;
     for (double i = 0; i<landmarks.size(); i++){
         potentialsInverted.push_back(DijkstraToALL(myGraph, landmarks[i]));
@@ -128,7 +131,7 @@ std::vector<std::vector<double>> precomputePotentialsEuclidian(Graph myGraph, co
     return potentialsInverted;
 }
 
-std::vector<double> farthestLandmarkSelection(Graph& myGraph, int numLandmarks, std::string filename){
+std::vector<double> farthestLandmarkSelection(Graph myGraph, int numLandmarks, std::string filename){
     std::vector<double> landmarks;
     std::unordered_set<double> selectedNodes;
     std::vector<Node> nodes = myGraph.getNodes();
@@ -146,6 +149,11 @@ std::vector<double> farthestLandmarkSelection(Graph& myGraph, int numLandmarks, 
     //Select the remaining landmarks
     for (int i = 1; i<numLandmarks; i++){
         double nextLandmark = multiSourceDijkstra(myGraph, landmarks);
+        if (selectedNodes.find(nextLandmark)!=selectedNodes.end()){
+            std::mt19937 rang(rd());
+            std::uniform_int_distribution<int> newRand(0, nodes.size() - 1);
+            nextLandmark = newRand(rang);
+        }
         landmarks.push_back(nextLandmark);
         selectedNodes.insert(nextLandmark);
     }

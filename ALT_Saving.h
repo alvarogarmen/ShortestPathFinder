@@ -13,8 +13,7 @@
 #include <cmath>
 #include <set>
 #include <fstream>
-
-double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
+double ALTUsefulSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
                  std::string exploredNodes, std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     APQ apq = APQ(myGraph.nodeCount);
@@ -53,8 +52,8 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
                     return dist[edge];
                 }
                 priorityDist[edge] = priorityDist[currentNode] -
-                                     estimate(currentNode, targetNode - 1, potentials, usefulLandmarks) +
-                                     weight + estimate(edge, targetNode - 1, potentials, usefulLandmarks);
+                                     estimateUseful(currentNode, targetNode - 1, potentials, usefulLandmarks) +
+                                     weight + estimateUseful(edge, targetNode - 1, potentials, usefulLandmarks);
 
                 double f = priorityDist[edge];
 
@@ -72,13 +71,64 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
     return dist[targetNode-1];
 }
 
+double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
+                 std::string exploredNodes) {
+    APQ apq = APQ(myGraph.nodeCount);
+    std::set<double> visited;
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
-double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
+    apq.insertNode(sourceNode - 1, 0);
+    dist[sourceNode - 1] = 0;
+
+    std::ofstream exploredFile("experiments/"+exploredNodes);  // File stream for explored nodes
+    while (!apq.isEmpty()) {
+        double currentNode = apq.popMin();
+        visited.insert(currentNode);
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+            if (dist[currentNode] + weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+
+                if (edge == targetNode -1){
+                    for (auto currentNode : visited){
+                        exploredFile << myGraph.getNode(currentNode).coordinateX << " " << myGraph.getNode(currentNode).coordinateY << std::endl;  // Write explored node to the file
+                    }
+                    return dist[edge];
+                }
+                priorityDist[edge] = priorityDist[currentNode] -
+                                     estimate(currentNode, targetNode - 1, potentials) +
+                                     weight + estimate(edge, targetNode - 1, potentials);
+
+                double f = priorityDist[edge];
+
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, f);
+                } else {
+                    apq.insertNode(edge, f);
+                }
+            }
+        }
+    }
+    for (auto currentNode : visited){
+        exploredFile << myGraph.getNode(currentNode).coordinateX << " " << myGraph.getNode(currentNode).coordinateY << std::endl;  // Write explored node to the file
+    }
+    return dist[targetNode-1];
+}
+
+double ALTUsefulSearchSpace(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials,
                       std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);
     APQSaving apq = APQSaving();
     std::vector<double> visited;
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
@@ -103,8 +153,60 @@ double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const
                     return visited.size();
                 }
 
-                double h = estimate(edge, targetNode-1, potentials, usefulLandmarks);
-                double f = dist[edge] + h;
+                priorityDist[edge] = priorityDist[currentNode] -
+                                     estimateUseful(currentNode, targetNode - 1, potentials, usefulLandmarks) +
+                                     weight + estimateUseful(edge, targetNode - 1, potentials, usefulLandmarks);
+                double f = priorityDist[edge];
+
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, f, currentNode);
+                } else {
+                    apq.insertNode(edge, f, currentNode);
+                }
+            }
+        }
+    }
+
+    std::cout << "All available edges relaxed" << std::endl;
+    if (dist[targetNode - 1] == INT_MAX) {
+        return visited.size();
+    }
+    return visited.size();
+}
+double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
+    APQSaving apq = APQSaving();
+    std::vector<double> visited;
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+
+    apq.insertNode(sourceNode - 1, 0, -1);
+    dist[sourceNode - 1] = 0;
+    visited.push_back(sourceNode);
+    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
+
+
+    while (!apq.isEmpty()) {
+        double currentNode = apq.popMin();
+
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+            visited.push_back(edge);
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+            if (dist[currentNode] + weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+
+                if (edge == targetNode - 1) {
+                    return visited.size();
+                }
+
+                priorityDist[edge] = priorityDist[currentNode] -
+                                     estimate(currentNode, targetNode - 1, potentials) +
+                                     weight + estimate(edge, targetNode - 1, potentials);
+                double f = priorityDist[edge];
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f, currentNode);

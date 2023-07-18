@@ -113,7 +113,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         // Start measuring the execution time
         start = std::chrono::high_resolution_clock::now();
         // Run ALT using the precomputed potentials
-        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials, landmarks);
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
 
         // Stop measuring the execution time
         end = std::chrono::high_resolution_clock::now();
@@ -124,15 +124,15 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         // Print the shortest distance and execution time
         std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
         std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
-        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", landmarks);
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, landmarks);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBidirectional", potentials, landmarks);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBidirectional", potentials);
     }
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
@@ -152,7 +152,7 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         // Start measuring the execution time
         start = std::chrono::high_resolution_clock::now();
         // Run ALT using the precomputed potentials
-        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials, landmarksAvoid);
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
 
         // Stop measuring the execution time
         end = std::chrono::high_resolution_clock::now();
@@ -163,15 +163,15 @@ void callALTAvoid(Graph myGraph, double sourceNode, double targetNode, int numLa
         // Print the shortest distance and execution time
         std::cout<<"ALT Avoid from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
         std::cout << "ALT Avoid took: " << time.count()<< "s" << std::endl;
-        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored", landmarksAvoid);
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTAvoid_explored");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, landmarksAvoid);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Avoid ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBidirectional", potentials, landmarksAvoid);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAvoidBidirectional", potentials);
     }
 
 }
@@ -192,7 +192,7 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         // Start measuring the execution time
         start = std::chrono::high_resolution_clock::now();
         // Run ALT using the precomputed potentials
-        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials, landmarks);
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
 
         // Stop measuring the execution time
         end = std::chrono::high_resolution_clock::now();
@@ -203,15 +203,15 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         // Print the shortest distance and execution time
         std::cout<<"ALT Farthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
         std::cout << "ALT Farthest took: " << time.count()<< "s" << std::endl;
-        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored", landmarks);
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, landmarks);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials, landmarks);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
     }
     else if(newLandmarks==1){
         std::cout<<"No loading"<<std::endl;
@@ -229,7 +229,7 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         // Start measuring the execution time
         start = std::chrono::high_resolution_clock::now();
         // Run ALT using the precomputed potentials
-        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials, landmarksFarthest);
+        double shortestDistance = ALT(myGraph, sourceNode, targetNode, potentials);
 
         // Stop measuring the execution time
         end = std::chrono::high_resolution_clock::now();
@@ -240,15 +240,15 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         // Print the shortest distance and execution time
         std::cout<<"ALT Farthest from Node "<<sourceNode<<" to Node "<<targetNode<<" is "<<shortestDistance<<std::endl;
         std::cout << "ALT Farthest took: " << time.count()<< "s" << std::endl;
-        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored", landmarksFarthest);
+        ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored");
         std::cout<<"Saved"<<std::endl;
         start = std::chrono::high_resolution_clock::now();
-        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials, landmarksFarthest);
+        double ALTBI = ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
         end = std::chrono::high_resolution_clock::now();
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
-        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials, landmarksFarthest);
+        ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
     }
 
 }
@@ -256,9 +256,9 @@ void plotALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
     std::vector<double> landmarks=loadLandmarks("Landmarks_Farthest_"+filename.substr(13,3));
     std::vector<std::vector<double>> potentials = precomputePotentialsEuclidian(myGraph, landmarks);
 
-    ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored", landmarks);
+    ALTSaving(myGraph, sourceNode, targetNode, potentials, "ALTFarthest_explored");
 
-    ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials, landmarks);
+    ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
 }
 
 

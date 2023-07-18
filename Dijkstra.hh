@@ -12,11 +12,11 @@
 #include <cmath>
 #include <set>
 
-double distance(Node& source, Node& target) {                             //Calculate Euclidian distance
+double distance(const Node& source, const Node& target) {                             //Calculate Euclidian distance
     return sqrt(std::pow(static_cast<double>(source.coordinateX - target.coordinateX), 2.0)
                 + std::pow(static_cast<double>(source.coordinateY - target.coordinateY), 2.0));
 }
-double Dijkstra(Graph& myGraph, double& sourceNode, double& targetNode){
+double Dijkstra(const Graph& myGraph, double& sourceNode, double& targetNode){
     if (sourceNode==targetNode){
         return 0;
     }

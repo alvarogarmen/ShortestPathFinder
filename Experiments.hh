@@ -139,7 +139,8 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
         for (int i = 2; i <= numLandmarks;) {
             auto proStart = std::chrono::high_resolution_clock::now();
             std::vector<double> landmarksFarthest = farthestLandmarkSelection(myGraph, i, "Landmarks_Farthest_" +
-                                                                                          filename.substr(13, 3));
+                                                                                          filename.substr(13, 3)+
+                                                                                          std::to_string(i));
             auto proEnd = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> proTime = proEnd - proStart;
             preTimes << proTime.count() << " ";
@@ -150,7 +151,7 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
             preTimes << proTime.count() << std::endl;
             writePotentialsToFile(potentials,
                                   "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(potentials.size()));
-            i += 2;
+            i *= 2;
         }
         preTimes.close();
     }
@@ -158,29 +159,30 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
     while(i<=numLandmarks) {
         std::vector<std::vector<double>> potentials = loadPotentials(
                 "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
-
+        std::cout<<"Num Landmarks: "<<potentials.size()<<" "<<potentials[1].size()<<std::endl;
         std::vector<double> landmarks = loadLandmarks(
-                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
-
+                "Landmarks_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+        //TODO: Fix writing and loading landmarks
+        std::cout<<"Num Landmarks: "<<landmarks.size()<<std::endl;
         std::ofstream ALTFarthestTimes(
                 "experiments/ALTFarthestTimes_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size()) + "_numLandmarks_" + std::to_string(i));
 
         std::ofstream ALTFarthestSearch("experiments/ALTFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
                 std::to_string(Points.size())+ "_numLandmarks_" + std::to_string(i));
-
         for (auto experiment: Points) {
             double sourceNode = experiment.first;
             double targetNode = experiment.second;
             auto start = std::chrono::high_resolution_clock::now();
-            ALT(myGraph, sourceNode, targetNode, potentials, landmarks);
+            ALT(myGraph, sourceNode, targetNode, potentials);
             //Stop the clock
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time = end - start;
             ALTFarthestTimes << time.count() << std::endl;
-            ALTFarthestSearch << ALTSearchSpace(myGraph, sourceNode, targetNode, potentials, landmarks)<<std::endl;
+            ALTFarthestSearch << ALTSearchSpace(myGraph, sourceNode, targetNode, potentials)<<std::endl;
+
         }
-        i+=2;
+        i=i*2;
         ALTFarthestSearch.close();
         ALTFarthestTimes.close();
     }
@@ -191,7 +193,7 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
                 "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
 
         std::vector<double> landmarks = loadLandmarks(
-                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+                "Landmarks_Farthest_" + filename.substr(13, 3) + std::to_string(i));
 
         std::ofstream ALTBidiFarthestTimes(
                 "experiments/ALTBidiFarthestTimes_" + filename.substr(13, 3) + "_" +
@@ -204,14 +206,14 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
             double sourceNode = experiment.first;
             double targetNode = experiment.second;
             auto start = std::chrono::high_resolution_clock::now();
-            ALTBidirectional(myGraph, sourceNode, targetNode, potentials, landmarks);
+            ALTBidirectional(myGraph, sourceNode, targetNode, potentials);
             //Stop the clock
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double> time = end - start;
             ALTBidiFarthestTimes << time.count() << std::endl;
-            ALTBidiFarthestSearch << ALTBidirectionalSearchSpace(myGraph, sourceNode, targetNode, potentials, landmarks)<<std::endl;
+            ALTBidiFarthestSearch << ALTBidirectionalSearchSpace(myGraph, sourceNode, targetNode, potentials)<<std::endl;
         }
-        i+=2;
+        i=i*2;
         ALTBidiFarthestTimes.close();
         ALTBidiFarthestSearch.close();
     }

@@ -28,6 +28,7 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
     callDijkstra(myGraph, sourceNode, targetNode);
     callAStar(myGraph, sourceNode, targetNode);
     callALTFarthest(myGraph, sourceNode, targetNode, numLandmarks, newLandmarks, graph);
+
     if (newPoints!=0){
         points = generatePoints(myGraph, numPoints, graph);
         std::cout<<"New Points generated!"<<std::endl;
@@ -36,11 +37,11 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
         points = loadPoints(graph.substr(13, 3)+"_"+std::to_string(numPoints));
         std::cout<<"Points loaded!"<<std::endl;
     }
-    callExperimentDijkstra(myGraph, points, graph);
+    //callExperimentDijkstra(myGraph, points, graph);
     std::cout<<"Dijkstra Experiments successful!"<<std::endl;
-    callExperimentAStar(myGraph, points, graph);
+    //callExperimentAStar(myGraph, points, graph);
     std::cout<<"AStar Experiments successful!"<<std::endl;
-    callExperimentALT(myGraph, points, graph, numLandmarks, newLandmarks);
+    //callExperimentALT(myGraph, points, graph, numLandmarks, newLandmarks);
     std::cout<<"ALT Experiments successful!"<<std::endl;
 
 
