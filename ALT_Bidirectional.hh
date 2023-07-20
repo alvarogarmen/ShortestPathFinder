@@ -1,4 +1,3 @@
-#include <bitset>
 
 double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                         std::vector<std::vector<double>>& potentials) {
@@ -16,6 +15,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
+
+    //TODO: add poped array so that nodes dont get reinserted
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         if (apqForward.getMin().second < apqBackward.getMin().second){
             double forwardNode = apqForward.popMin();
@@ -61,12 +62,12 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
                 if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                     distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
-                    priorityBackDist[backwardEdge] = priorityForDist[backwardNode] -
+                    priorityBackDist[backwardEdge] = priorityBackDist[backwardNode] -
                                                      estimate(backwardNode, sourceNode - 1, potentials) +
                                                      backwardWeight +
                                                      estimate(backwardEdge, sourceNode - 1, potentials);
 
-                    double backwardF = priorityForDist[backwardEdge];
+                    double backwardF = priorityBackDist[backwardEdge];
 
 
                     if (apqBackward.contains(backwardEdge)) {
@@ -154,12 +155,12 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
                         break;
                     }
 
-                    priorityForDist[backwardEdge] = priorityForDist[backwardNode] -
+                    priorityBackDist[backwardEdge] = priorityBackDist[backwardNode] -
                                                     estimate(backwardNode, sourceNode - 1, potentials) +
                                                     backwardWeight +
                                                     estimate(backwardEdge, sourceNode - 1, potentials);
 
-                    double backwardF = priorityForDist[backwardEdge];
+                    double backwardF = priorityBackDist[backwardEdge];
 
                     if (apqBackward.contains(backwardEdge)) {
                         apqBackward.decreaseKey(backwardEdge, backwardF);
