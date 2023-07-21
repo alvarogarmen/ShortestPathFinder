@@ -11,6 +11,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     std::vector<double> priorityBackDist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
+    priorityForDist[sourceNode-1] = estimate(sourceNode-1, targetNode-1, potentials);
+    priorityBackDist[targetNode-1] = estimate(targetNode-1, sourceNode-1, potentials);
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
@@ -18,71 +20,65 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
     //TODO: add poped array so that nodes dont get reinserted
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
-        if (apqForward.getMin().second < apqBackward.getMin().second){
-            double forwardNode = apqForward.popMin();
+        double forwardNode = apqForward.popMin();
 
-            double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
-            double endForwardEdge = myGraph.edgeStarts[forwardNode];
+        double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
+        double endForwardEdge = myGraph.edgeStarts[forwardNode];
 
-            for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
-                double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
-                double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
+        for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
+            double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
+            double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
 
-                if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
-                    distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
-                    priorityForDist[forwardEdge] = priorityForDist[forwardNode] -
-                                                   estimate(forwardNode, targetNode - 1, potentials) +
-                                                   forwardWeight +
-                                                   estimate(forwardEdge, targetNode - 1, potentials);
+            if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
+                distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
+                priorityForDist[forwardEdge] = priorityForDist[forwardNode] -
+                                               estimate(forwardNode, targetNode - 1, potentials) +
+                                               forwardWeight +
+                                               estimate(forwardEdge, targetNode - 1, potentials);
 
-                    double forwardF = priorityForDist[forwardEdge];
+                double forwardF = priorityForDist[forwardEdge];
 
-                    if (apqForward.contains(forwardEdge)) {
-                        apqForward.decreaseKey(forwardEdge, forwardF);
-                    } else {
-                        apqForward.insertNode(forwardEdge, forwardF);
-                    }
-                    if(distBackward[forwardEdge]<INT_MAX || forwardEdge==targetNode-1){
-                        return distForward[forwardEdge]+distBackward[forwardEdge];
-                    }
+                if (apqForward.contains(forwardEdge)) {
+                    apqForward.decreaseKey(forwardEdge, forwardF);
+                } else {
+                    apqForward.insertNode(forwardEdge, forwardF);
+                }
+                if(distBackward[forwardEdge]<INT_MAX){
+                    return distForward[forwardEdge]+distBackward[forwardEdge];
                 }
             }
         }
 
-        else {
-            double backwardNode = apqBackward.popMin();
+        double backwardNode = apqBackward.popMin();
 
-            double startBackwardEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
-            double endBackwardEdge = myGraph.edgeStarts[backwardNode];
+        double startBackwardEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
+        double endBackwardEdge = myGraph.edgeStarts[backwardNode];
 
-            for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
-                double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
-                double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
+        for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
+            double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
+            double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
-                if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
-                    distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
-                    priorityBackDist[backwardEdge] = priorityBackDist[backwardNode] -
-                                                     estimate(backwardNode, sourceNode - 1, potentials) +
-                                                     backwardWeight +
-                                                     estimate(backwardEdge, sourceNode - 1, potentials);
+            if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
+                distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
+                priorityBackDist[backwardEdge] = priorityBackDist[backwardNode] -
+                                                 estimate(backwardNode, sourceNode - 1, potentials) +
+                                                 backwardWeight +
+                                                 estimate(backwardEdge, sourceNode - 1, potentials);
 
-                    double backwardF = priorityBackDist[backwardEdge];
+                double backwardF = priorityBackDist[backwardEdge];
 
 
-                    if (apqBackward.contains(backwardEdge)) {
-                        apqBackward.decreaseKey(backwardEdge, backwardF);
-                    } else {
-                        apqBackward.insertNode(backwardEdge, backwardF);
-                    }
-                    if (distForward[backwardEdge]<INT_MAX || backwardEdge==sourceNode-1){
-                        return distForward[backwardEdge]+distBackward[backwardEdge];
-                    }
+                if (apqBackward.contains(backwardEdge)) {
+                    apqBackward.decreaseKey(backwardEdge, backwardF);
+                } else {
+                    apqBackward.insertNode(backwardEdge, backwardF);
+                }
+                if (distForward[backwardEdge]<INT_MAX){
+                    return distForward[backwardEdge]+distBackward[backwardEdge];
                 }
             }
-
         }
-
     }
 
     return -1;
