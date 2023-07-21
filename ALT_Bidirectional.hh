@@ -17,10 +17,14 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
     distBackward[targetNode - 1] = 0;
+    double minPath = INT_MAX;
+    bool meeting = false;
 
     //TODO: add poped array so that nodes dont get reinserted
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
         double forwardNode = apqForward.popMin();
+        double backwardNode = apqBackward.popMin();
+
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -32,9 +36,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
-                priorityForDist[forwardEdge] = priorityForDist[forwardNode] -
-                                               estimate(forwardNode, targetNode - 1, potentials) +
-                                               forwardWeight +
+                priorityForDist[forwardEdge] = distForward[forwardEdge]+
                                                estimate(forwardEdge, targetNode - 1, potentials);
 
                 double forwardF = priorityForDist[forwardEdge];
@@ -44,13 +46,13 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 } else {
                     apqForward.insertNode(forwardEdge, forwardF);
                 }
-                if(distBackward[forwardEdge]<INT_MAX){
-                    return distForward[forwardEdge]+distBackward[forwardEdge];
+                if(distBackward[forwardEdge]+distForward[forwardEdge]<minPath){
+                    minPath=distForward[forwardEdge]+distBackward[forwardEdge];
                 }
+                if(forwardEdge==backwardNode){meeting = true;}
             }
         }
 
-        double backwardNode = apqBackward.popMin();
 
         double startBackwardEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
         double endBackwardEdge = myGraph.edgeStarts[backwardNode];
@@ -61,9 +63,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
-                priorityBackDist[backwardEdge] = priorityBackDist[backwardNode] -
-                                                 estimate(backwardNode, sourceNode - 1, potentials) +
-                                                 backwardWeight +
+
+                priorityBackDist[backwardEdge] = distBackward[backwardEdge]+
                                                  estimate(backwardEdge, sourceNode - 1, potentials);
 
                 double backwardF = priorityBackDist[backwardEdge];
@@ -74,10 +75,19 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 } else {
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
-                if (distForward[backwardEdge]<INT_MAX){
-                    return distForward[backwardEdge]+distBackward[backwardEdge];
+                if(distBackward[backwardEdge]+distForward[backwardEdge]<minPath){
+                    minPath=distForward[backwardEdge]+distBackward[backwardEdge];
+                }
+                if(backwardEdge==forwardNode){
+                    meeting=true;
                 }
             }
+        }
+        if (distForward[backwardNode]<INT_MAX||distBackward[forwardNode]<INT_MAX){
+            return minPath;
+        }
+        if (meeting){
+            return minPath;
         }
     }
 
