@@ -1,5 +1,77 @@
+double ALTBidirectional(const Graph& myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
+    APQ forwardAPQ = APQ(myGraph.nodeCount);
+    APQ backwardAPQ = APQ(myGraph.nodeCount);
+    std::vector<double> forwardDist(myGraph.nodes.size(), INT_MAX);
+    std::vector<double> backwardDist(myGraph.nodes.size(), INT_MAX);
 
-double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
+    forwardAPQ.insertNode(sourceNode - 1, 0);
+    backwardAPQ.insertNode(targetNode - 1, 0);
+    forwardDist[sourceNode - 1] = 0;
+    backwardDist[targetNode - 1] = 0;
+
+    double meetingNode = -1;
+    double bestPath = INT_MAX;
+
+    while (!forwardAPQ.isEmpty() && !backwardAPQ.isEmpty()) {
+        // Perform a forward search step
+        double forwardNode = forwardAPQ.popMin();
+        double forwardStartEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
+        double forwardEndEdge = myGraph.edgeStarts[forwardNode];
+
+        for (double edgeIndex = forwardStartEdge; edgeIndex <= forwardEndEdge; edgeIndex++) {
+            double forwardEdge = myGraph.edges[edgeIndex] - 1;
+            double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
+            if (forwardDist[forwardNode] + forwardWeight < forwardDist[forwardEdge]) {
+                forwardDist[forwardEdge] = forwardDist[forwardNode] + forwardWeight;
+                double forwardF = forwardDist[forwardEdge] + estimate(forwardEdge, targetNode - 1, potentials);
+                if (forwardAPQ.contains(forwardEdge)) {
+                    forwardAPQ.decreaseKey(forwardEdge, forwardF);
+                } else {
+                    forwardAPQ.insertNode(forwardEdge, forwardF);
+                }
+
+                // Check if the forward search reaches the backward search frontier
+                if(backwardDist[forwardEdge]!=INT_MAX && forwardDist[forwardEdge]+backwardDist[forwardEdge]<bestPath){
+                    bestPath=forwardDist[forwardEdge]+backwardDist[forwardEdge];
+                }
+
+            }
+        }
+
+        // Perform a backward search step
+        double backwardNode = backwardAPQ.popMin();
+        double backwardStartEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
+        double backwardEndEdge = myGraph.edgeStarts[backwardNode];
+
+        for (double edgeIndex = backwardStartEdge; edgeIndex <= backwardEndEdge; edgeIndex++) {
+            double backwardEdge = myGraph.edges[edgeIndex] - 1;
+            double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
+            if (backwardDist[backwardNode] + backwardWeight < backwardDist[backwardEdge]) {
+                backwardDist[backwardEdge] = backwardDist[backwardNode] + backwardWeight;
+                double backwardF = backwardDist[backwardEdge] + estimate(backwardEdge, sourceNode - 1, potentials);
+                if (backwardAPQ.contains(backwardEdge)) {
+                    backwardAPQ.decreaseKey(backwardEdge, backwardF);
+                } else {
+                    backwardAPQ.insertNode(backwardEdge, backwardF);
+                }
+
+                // Check if the backward search reaches the forward search frontier
+                if(forwardDist[backwardEdge]!=INT_MAX && forwardDist[backwardEdge]+backwardDist[backwardEdge]<bestPath){
+                    bestPath=forwardDist[backwardEdge]+backwardDist[backwardEdge];
+                }
+
+            }
+        }
+
+        if (bestPath<=forwardDist[forwardNode]+ distance(myGraph.nodes[forwardNode], myGraph.nodes[backwardNode])+backwardDist[backwardNode]) {
+            return bestPath;
+        }
+    }
+
+    return bestPath;
+}
+
+/*double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                         std::vector<std::vector<double>>& potentials) {
     //Get two priority queues, visited vectors and dist arrays
     APQ apqForward = APQ(myGraph.nodeCount);
@@ -11,8 +83,6 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
     std::vector<double> priorityBackDist(myGraph.nodes.size(), INT_MAX);
     std::vector<double> distBackward(myGraph.nodes.size(), INT_MAX);
 
-    priorityForDist[sourceNode-1] = estimate(sourceNode-1, targetNode-1, potentials);
-    priorityBackDist[targetNode-1] = estimate(targetNode-1, sourceNode-1, potentials);
     apqForward.insertNode(sourceNode - 1, 0);
     apqBackward.insertNode(targetNode - 1, 0);
     distForward[sourceNode - 1] = 0;
@@ -25,7 +95,6 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
-
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
 
@@ -36,10 +105,9 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
-                priorityForDist[forwardEdge] = distForward[forwardEdge]+
-                                               estimate(forwardEdge, targetNode - 1, potentials);
 
-                double forwardF = priorityForDist[forwardEdge];
+                double forwardF = distForward[forwardEdge]+
+                                  estimate(forwardEdge, targetNode - 1, potentials);
 
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
@@ -64,10 +132,8 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                priorityBackDist[backwardEdge] = distBackward[backwardEdge]+
-                                                 estimate(backwardEdge, sourceNode - 1, potentials);
-
-                double backwardF = priorityBackDist[backwardEdge];
+                double backwardF = distBackward[backwardEdge]+
+                                   estimate(backwardEdge, sourceNode - 1, potentials);
 
 
                 if (apqBackward.contains(backwardEdge)) {
@@ -83,7 +149,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
                 }
             }
         }
-        if (distForward[backwardNode]<INT_MAX||distBackward[forwardNode]<INT_MAX){
+        if (forwardNode==targetNode-1||backwardNode==sourceNode-1){
             return minPath;
         }
         if (meeting){
@@ -93,7 +159,7 @@ double ALTBidirectional(Graph& myGraph, double& sourceNode, double& targetNode,
 
     return -1;
 }
-
+*/
 double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targetNode, std::string filename,
                               std::vector<std::vector<double>>& potentials) {
     APQ apqForward = APQ(myGraph.nodeCount);

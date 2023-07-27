@@ -114,7 +114,6 @@ std::vector<double> findUsefulLandmarks(Graph& myGraph, const double& sourceNode
 double ALT(const Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
     APQ apq = APQ(myGraph.nodeCount);
     std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
-    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
 
     apq.insertNode(sourceNode - 1, 0);
@@ -136,12 +135,8 @@ double ALT(const Graph& myGraph, double& sourceNode, double& targetNode, const s
                 if (edge == targetNode-1){
                     return dist[edge];
                 }
-                priorityDist[edge] = priorityDist[currentNode] -
-                                               estimate(currentNode, targetNode - 1, potentials) +
-                                               weight +
-                                               estimate(edge, targetNode - 1, potentials);
 
-                double f = priorityDist[edge];
+                double f = dist[edge]+estimate(edge, targetNode-1, potentials);
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f);
                 } else {

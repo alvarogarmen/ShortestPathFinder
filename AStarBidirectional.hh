@@ -70,7 +70,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 }
             }
         }
-        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
+        if (minPath<=distForward[forwardNode]+ distance(myGraph.nodes[forwardNode], myGraph.nodes[backwardNode])+distBackward[backwardNode]) {
             return minPath;
         }
     }
@@ -152,8 +152,8 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 }
             }
         }
-        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
-            break;
+        if (minPath<=distForward[forwardNode]+distBackward[backwardNode]){
+            return minPath;
         }
     }
 
