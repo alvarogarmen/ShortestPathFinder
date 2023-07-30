@@ -1,16 +1,15 @@
 //
-// Created by alvar on 29/07/2023.
+// Created by alvar on 30/07/2023.
 //
 
-#ifndef PRAKTIKUM_ALTBIDIRECTIONALSTOPPING_HH
-#define PRAKTIKUM_ALTBIDIRECTIONALSTOPPING_HH
-
+#ifndef PRAKTIKUM_ASTARBIDIRECTIONALSTOPPING_HH
+#define PRAKTIKUM_ASTARBIDIRECTIONALSTOPPING_HH
 #include "Graph.hh"
 #include "APQ.hh"
 #include "Dijkstra.hh"
 #include "ALT.hh"
 
-double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double targetNode, const std::vector<std::vector<double>>& potentials) {
+double AStarBidirectionalStopping(const Graph& myGraph, double sourceNode, double targetNode) {
     APQ forwardAPQ = APQ(myGraph.nodeCount);
     APQ backwardAPQ = APQ(myGraph.nodeCount);
     std::vector<double> forwardDist(myGraph.nodes.size(), INT_MAX);
@@ -37,7 +36,7 @@ double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double 
 
             if (forwardDist[forwardNode] + forwardWeight < forwardDist[forwardEdge]) {
                 forwardDist[forwardEdge] = forwardDist[forwardNode] + forwardWeight;
-                double forwardF = forwardDist[forwardEdge] + estimate(forwardEdge, targetNode-1, potentials);
+                double forwardF = forwardDist[forwardEdge] + distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
                 if (forwardAPQ.contains(forwardEdge)) {
                     forwardAPQ.decreaseKey(forwardEdge, forwardF);
                 } else {
@@ -62,14 +61,14 @@ double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double 
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
             if (backwardDist[backwardNode] + backwardWeight < backwardDist[backwardEdge]) {
                 backwardDist[backwardEdge] = backwardDist[backwardNode] + backwardWeight;
-                double backwardF = backwardDist[backwardEdge] + estimate(backwardEdge, sourceNode-1, potentials);
+                double backwardF = backwardDist[backwardEdge] + distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 if (backwardAPQ.contains(backwardEdge)) {
                     backwardAPQ.decreaseKey(backwardEdge, backwardF);
                 } else {
                     backwardAPQ.insertNode(backwardEdge, backwardF);
                 }
                 if(forwardDist[backwardEdge] < INT_MAX){
-                   return forwardDist[backwardEdge]+backwardDist[backwardEdge];}
+                    return forwardDist[backwardEdge]+backwardDist[backwardEdge];}
 
 
             }
@@ -83,8 +82,7 @@ double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double 
     return bestPath;
 }
 
-double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode,
-                                   std::vector<std::vector<double>>& potentials) {
+double AStarBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, double& targetNode) {
 
     APQ apqForward = APQ(myGraph.nodeCount);
     APQ apqBackward = APQ(myGraph.nodeCount);
@@ -118,7 +116,7 @@ double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, d
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
-                double forwardF = distForward[forwardEdge]+ estimate(forwardEdge, targetNode-1, potentials);
+                double forwardF = distForward[forwardEdge]+ distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
                 if(distBackward[forwardEdge] < INT_MAX){
                     return visited.size();}
 
@@ -139,7 +137,7 @@ double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, d
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
-                double backwardF = distBackward[backwardEdge]+ estimate(backwardEdge, sourceNode-1, potentials);
+                double backwardF = distBackward[backwardEdge]+ distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 if(distForward[backwardEdge] < INT_MAX){
                     return visited.size();}
 
@@ -157,5 +155,4 @@ double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, d
 
     return visited.size();
 }
-
-#endif //PRAKTIKUM_ALTBIDIRECTIONALSTOPPING_HH
+#endif //PRAKTIKUM_ASTARBIDIRECTIONALSTOPPING_HH

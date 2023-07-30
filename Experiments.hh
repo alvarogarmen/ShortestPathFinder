@@ -17,6 +17,7 @@
 
 #include "ALT-Landmarks.hh"
 #include "ProcessInput.hh"
+#include "AStarBidirectionalStopping.hh"
 
 std::vector<std::pair<int, int>> generatePoints(Graph myGraph, int numPoints, std::string filename){
 
@@ -130,6 +131,23 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
     }
     bidiAStarSearch.close();
     bidiAStarTimes.close();
+    //Now Bidirectional Stopping
+    std::ofstream bidiAStarStopTimes("experiments/aStarBidiStopTimes_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    std::ofstream bidiAStarStopSearch("experiments/aStarBidiStopSearchSpace_"+filename.substr(13,3)+"_"+std::to_string(Points.size()));
+    for (auto experiment : Points){
+        double sourceNode = experiment.first;
+        double targetNode = experiment.second;
+        auto start = std::chrono::high_resolution_clock::now();
+        AStarBidirectionalStopping(myGraph, sourceNode, targetNode);
+        //Stop the clock
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double> time = end - start;
+        bidiAStarTimes<<time.count()<<std::endl;
+        bidiAStarSearch<<AStarBidirectionalStoppingSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
+
+    }
+    bidiAStarStopSearch.close();
+    bidiAStarStopTimes.close();
 
 }
 
