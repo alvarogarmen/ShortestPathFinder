@@ -33,6 +33,7 @@ std::vector<std::pair<int, int>> generatePoints(Graph myGraph, int numPoints, st
         int randomInt2 = distribution(gen);
         pairs.push_back(std::make_pair(randomInt1, randomInt2));
         outputFile<<randomInt1 << " " << randomInt2 << std::endl;
+
     }
     outputFile.close();
     return pairs;
@@ -107,7 +108,7 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time = end - start;
         aStarTimes<<time.count()<<std::endl;
-        aStarSearch<<AStarSearchSpace(myGraph, sourceNode, targetNode);
+        aStarSearch<<AStarSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
     }
     aStarSearch.close();
     aStarTimes.close();
@@ -123,8 +124,9 @@ void callExperimentAStar(Graph myGraph, std::vector<std::pair<int, int>> Points,
         //Stop the clock
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double> time = end - start;
-        bidiAStarSearch<<AStarBidirectionalSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
         bidiAStarTimes<<time.count()<<std::endl;
+        bidiAStarSearch<<AStarBidirectionalSearchSpace(myGraph, sourceNode, targetNode)<<std::endl;
+
     }
     bidiAStarSearch.close();
     bidiAStarTimes.close();
@@ -216,6 +218,38 @@ void callExperimentALT(Graph myGraph, std::vector<std::pair<int, int>> Points, s
         i=i*2;
         ALTBidiFarthestTimes.close();
         ALTBidiFarthestSearch.close();
+    }
+
+    //Now Bidirectional with new breaking condition (0.001% error)
+    i=2;
+    while(i<=numLandmarks) {
+        std::vector<std::vector<double>> potentials = loadPotentials(
+                "Potentials_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+
+        std::vector<double> landmarks = loadLandmarks(
+                "Landmarks_Farthest_" + filename.substr(13, 3) + std::to_string(i));
+
+        std::ofstream ALTBidiStopFarthestTimes(
+                "experiments/ALTBidiStopFarthestTimes_" + filename.substr(13, 3) + "_" +
+                std::to_string(Points.size()) + "_numLandmarks_" + std::to_string(i));
+
+        std::ofstream ALTBidiStopFarthestSearch("experiments/ALTBidiStopFarthestSearchSpace_" + filename.substr(13, 3) + "_" +
+                                            std::to_string(Points.size())+ "_numLandmarks_" + std::to_string(i));
+
+        for (auto experiment: Points) {
+            double sourceNode = experiment.first;
+            double targetNode = experiment.second;
+            auto start = std::chrono::high_resolution_clock::now();
+            ALTBidirectionalStopping(myGraph, sourceNode, targetNode, potentials);
+            //Stop the clock
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> time = end - start;
+            ALTBidiStopFarthestTimes << time.count() << std::endl;
+            ALTBidiStopFarthestSearch << ALTBidirectionalStoppingSearchSpace(myGraph, sourceNode, targetNode, potentials)<<std::endl;
+        }
+        i=i*2;
+        ALTBidiStopFarthestTimes.close();
+        ALTBidiStopFarthestSearch.close();
     }
 
 

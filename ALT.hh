@@ -49,6 +49,50 @@ double estimate(double source, double target, const std::vector<std::vector<doub
     }
     return potential;
 }
+
+double ALT(const Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
+    APQ apq = APQ(myGraph.nodeCount);
+    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
+
+
+    apq.insertNode(sourceNode - 1, 0);
+    dist[sourceNode - 1] = 0;
+
+    while (!apq.isEmpty()) {
+        double currentNode = apq.popMin();
+
+        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
+        double endEdge = myGraph.edgeStarts[currentNode];
+
+        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            double edge = myGraph.edges[edgeIndex] - 1;
+            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
+
+            if (dist[currentNode]+ weight < dist[edge]) {
+                dist[edge] = dist[currentNode] + weight;
+
+                if (edge == targetNode-1){
+                    return dist[edge];
+                }
+
+                double f = dist[edge]+estimate(edge, targetNode-1, potentials);
+                if (apq.contains(edge)) {
+                    apq.decreaseKey(edge, f);
+                } else {
+                    apq.insertNode(edge, f);
+                }
+            }
+        }
+    }
+
+    std::cout << "All available edges relaxed" << std::endl;
+    if (dist[targetNode - 1] == INT_MAX) {
+        return -1;
+    }
+    return dist[targetNode - 1];
+}
+
+
 void calculateEndPoints(const Node& A, const Node& B, Node& End1, Node& End2) {
     Node AB = { B.coordinateX - A.coordinateX, B.coordinateY - A.coordinateY };
     int scale = 3;
@@ -108,49 +152,6 @@ std::vector<double> findUsefulLandmarks(Graph& myGraph, const double& sourceNode
         }
     }
     return usefulLandmarks;
-}
-
-
-double ALT(const Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials) {
-    APQ apq = APQ(myGraph.nodeCount);
-    std::vector<double> dist(myGraph.nodes.size(), INT_MAX);
-
-
-    apq.insertNode(sourceNode - 1, 0);
-    dist[sourceNode - 1] = 0;
-
-    while (!apq.isEmpty()) {
-        double currentNode = apq.popMin();
-
-        double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
-        double endEdge = myGraph.edgeStarts[currentNode];
-
-        for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
-            double edge = myGraph.edges[edgeIndex] - 1;
-            double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
-
-            if (dist[currentNode]+ weight < dist[edge]) {
-                dist[edge] = dist[currentNode] + weight;
-
-                if (edge == targetNode-1){
-                    return dist[edge];
-                }
-
-                double f = dist[edge]+estimate(edge, targetNode-1, potentials);
-                if (apq.contains(edge)) {
-                    apq.decreaseKey(edge, f);
-                } else {
-                    apq.insertNode(edge, f);
-                }
-            }
-        }
-    }
-
-    std::cout << "All available edges relaxed" << std::endl;
-    if (dist[targetNode - 1] == INT_MAX) {
-        return -1;
-    }
-    return dist[targetNode - 1];
 }
 
 double ALTUseful(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials,

@@ -102,11 +102,8 @@ double ALTSaving(Graph myGraph, double sourceNode, double targetNode, const std:
                     }
                     return dist[edge];
                 }
-                priorityDist[edge] = priorityDist[currentNode] -
-                                     estimate(currentNode, targetNode - 1, potentials) +
-                                     weight + estimate(edge, targetNode - 1, potentials);
 
-                double f = priorityDist[edge];
+                double f = dist[edge]+estimate(edge, targetNode-1, potentials);
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f);
@@ -181,7 +178,6 @@ double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
     visited.push_back(sourceNode);
-    std::vector<double> priorityDist(myGraph.nodes.size(), INT_MAX);
 
 
     while (!apq.isEmpty()) {
@@ -203,10 +199,7 @@ double ALTSearchSpace(Graph myGraph, double sourceNode, double targetNode, const
                     return visited.size();
                 }
 
-                priorityDist[edge] = priorityDist[currentNode] -
-                                     estimate(currentNode, targetNode - 1, potentials) +
-                                     weight + estimate(edge, targetNode - 1, potentials);
-                double f = priorityDist[edge];
+                double f = dist[edge]+ estimate(edge, targetNode-1, potentials);
 
                 if (apq.contains(edge)) {
                     apq.decreaseKey(edge, f, currentNode);

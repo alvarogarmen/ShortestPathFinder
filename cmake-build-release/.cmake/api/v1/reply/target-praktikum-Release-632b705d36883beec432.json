@@ -97,13 +97,6 @@
 				0,
 				1
 			]
-		},
-		{
-			"name" : "Header Files",
-			"sourceIndexes" : 
-			[
-				2
-			]
 		}
 	],
 	"sources" : 
@@ -119,11 +112,6 @@
 			"compileGroupIndex" : 1,
 			"path" : "argtable3.c",
 			"sourceGroupIndex" : 0
-		},
-		{
-			"backtrace" : 1,
-			"path" : "ALTernative.hh",
-			"sourceGroupIndex" : 1
 		}
 	],
 	"type" : "EXECUTABLE"

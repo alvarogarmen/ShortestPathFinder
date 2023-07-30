@@ -43,7 +43,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 double forwardH = distance(myGraph.nodes[forwardEdge], myGraph.nodes[targetNode-1]);
 
                 double forwardF = distForward[forwardEdge] + forwardH;
-                if(distForward[forwardEdge]+forwardWeight+distBackward[forwardEdge] < minPath){minPath=distForward[forwardEdge]+distBackward[forwardEdge];}
+                if(distForward[forwardEdge]+distBackward[forwardEdge] < minPath){minPath=distForward[forwardEdge]+distBackward[forwardEdge];}
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
                 } else {
@@ -61,7 +61,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
                 double backwardH = distance(myGraph.nodes[backwardEdge], myGraph.nodes[sourceNode-1]);
                 double backwardF = distBackward[backwardEdge] + backwardH;
-                if(distForward[backwardEdge]+backwardWeight+distBackward[backwardEdge] < minPath){minPath=distForward[backwardEdge]+distBackward[backwardEdge];}
+                if(distForward[backwardEdge]+distBackward[backwardEdge] < minPath){minPath=distForward[backwardEdge]+distBackward[backwardEdge];}
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
@@ -70,7 +70,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 }
             }
         }
-        if (minPath<=distForward[forwardNode]+ distance(myGraph.nodes[forwardNode], myGraph.nodes[backwardNode])+distBackward[backwardNode]) {
+        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             return minPath;
         }
     }
@@ -152,8 +152,8 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 }
             }
         }
-        if (minPath<=distForward[forwardNode]+distBackward[backwardNode]){
-            return minPath;
+        if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
+            break;
         }
     }
 

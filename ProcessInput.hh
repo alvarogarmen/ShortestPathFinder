@@ -17,6 +17,7 @@
 #include "HighwayHierarchiesStar.hh"
 #include "AStarBidirectional.hh"
 #include "DijkstraBidirectional.hh"
+#include "ALTBidirectionalStopping.hh"
 
 std::vector<double> loadLandmarks(std::string filename){
     std::vector<double> vec;
@@ -211,6 +212,14 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        ALTBidirectionalStopping(myGraph, sourceNode, targetNode, potentials);
+        end = std::chrono::high_resolution_clock::now();
+        time = end - start;
+        std::cout<<"Variant took :"<<time.count()<<std::endl;
+
+        std::cout<<"Variant:"<<ALTBidirectionalStopping(myGraph, sourceNode, targetNode, potentials)<<std::endl;
+
         ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
     }
     else if(newLandmarks==1){
@@ -248,6 +257,13 @@ void callALTFarthest(Graph myGraph, double sourceNode, double targetNode, int nu
         time = end - start;
         std::cout<<"Farthest ALTBI: "<<ALTBI<<std::endl;
         std::cout<<"Took :"<<time.count()<<std::endl;
+        start = std::chrono::high_resolution_clock::now();
+        ALTBidirectionalStopping(myGraph, sourceNode, targetNode, potentials);
+        end = std::chrono::high_resolution_clock::now();
+        time = end - start;
+        std::cout<<"Variant took :"<<time.count()<<std::endl;
+
+        std::cout<<"Variant:"<<ALTBidirectionalStopping(myGraph, sourceNode, targetNode, potentials)<<std::endl;
         ALTBidirectionalSaving(myGraph, sourceNode, targetNode, "ALTAFarthestBidirectional", potentials);
     }
 
