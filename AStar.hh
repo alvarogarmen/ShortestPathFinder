@@ -139,6 +139,7 @@ double AStarSearchSpace(Graph myGraph, double sourceNode, double targetNode) {
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
+        visited.push_back(currentNode);
 
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
@@ -146,7 +147,6 @@ double AStarSearchSpace(Graph myGraph, double sourceNode, double targetNode) {
 
         for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
             double edge = myGraph.edges[edgeIndex] - 1;
-            visited.push_back(edge);
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
 
             if (dist[currentNode] + weight < dist[edge]) {

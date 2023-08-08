@@ -25,7 +25,7 @@ public:
 
     // Vector with the node and their priority, aka our priority queue. Left is nodeId and right is the priority
     std::vector<std::pair<double, double>> heap;
-    // A hash table that maps values to their indices in the heap. Only important here
+    // A vector that maps values to their indices in the heap. Only important here
     std::vector<int> index;
 };
 

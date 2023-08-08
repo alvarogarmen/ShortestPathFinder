@@ -28,7 +28,7 @@ double ALTBidirectional(const Graph& myGraph, double sourceNode, double targetNo
                 double forwardF = forwardDist[forwardEdge] + estimate(forwardEdge, targetNode-1, potentials);
                 if (forwardAPQ.contains(forwardEdge)) {
                     forwardAPQ.decreaseKey(forwardEdge, forwardF);
-                } else {
+                } else if(forwardF < bestPath) {
                     forwardAPQ.insertNode(forwardEdge, forwardF);
                 }
 
@@ -54,7 +54,7 @@ double ALTBidirectional(const Graph& myGraph, double sourceNode, double targetNo
                 double backwardF = backwardDist[backwardEdge] + estimate(backwardEdge, sourceNode-1, potentials);
                 if (backwardAPQ.contains(backwardEdge)) {
                     backwardAPQ.decreaseKey(backwardEdge, backwardF);
-                } else {
+                } else if(backwardF < bestPath){
                     backwardAPQ.insertNode(backwardEdge, backwardF);
                 }
 
@@ -65,7 +65,9 @@ double ALTBidirectional(const Graph& myGraph, double sourceNode, double targetNo
 
             }
         }
-
+        if (backwardAPQ.isEmpty()||forwardAPQ.isEmpty()){
+            return bestPath;
+        }
         if (backwardAPQ.getMin().second >= bestPath || forwardAPQ.getMin().second >= bestPath){
             return bestPath;
         }
@@ -234,6 +236,9 @@ double ALTBidirectionalSaving(Graph& myGraph, double& sourceNode, double& target
             }
 
         }
+        if(apqBackward.isEmpty()||apqForward.isEmpty()){
+            break;
+        }
         if (apqBackward.getMin().second >= bestPath || apqForward.getMin().second >= bestPath){
             break;
         }
@@ -273,7 +278,11 @@ double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& t
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
+        visited.push_back(forwardNode);
+
         double backwardNode = apqBackward.popMin();
+        visited.push_back(backwardNode);
+
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -283,12 +292,10 @@ double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& t
 
         for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
-            visited.push_back(forwardEdge);
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
-
                 double forwardF = distForward[forwardEdge]+ estimate(forwardEdge, targetNode-1, potentials);
                 if(distBackward[forwardEdge]!=INT_MAX && distForward[forwardEdge]+distBackward[forwardEdge]<minPath){
                     minPath=distForward[forwardEdge]+distBackward[forwardEdge];
@@ -321,6 +328,9 @@ double ALTBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double& t
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
             }
+        }
+        if(apqBackward.isEmpty()||apqForward.isEmpty()){
+            return visited.size();
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             return visited.size();
@@ -526,6 +536,9 @@ double ALTBidirectionalUsefulSaving(Graph& myGraph, double& sourceNode, double& 
                 }
             }
         }
+        if(apqForward.isEmpty()||apqBackward.isEmpty()){
+            break;
+        }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             break;
         }
@@ -629,6 +642,9 @@ double ALTBidirectionalUsefulSearchSpace(Graph& myGraph, double& sourceNode, dou
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
             }
+        }
+        if(apqBackward.isEmpty()||apqForward.isEmpty()){
+            return visited.size();
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             return visited.size();

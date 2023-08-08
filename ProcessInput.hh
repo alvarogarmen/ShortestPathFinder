@@ -18,6 +18,7 @@
 #include "AStarBidirectional.hh"
 #include "DijkstraBidirectional.hh"
 #include "ALTBidirectionalStopping.hh"
+#include "AStarBidirectionalStopping.hh"
 
 std::vector<double> loadLandmarks(std::string filename){
     std::vector<double> vec;
@@ -74,6 +75,13 @@ void callAStar(Graph myGraph, double sourceNode, double targetNode){
     std::cout<<"A* Bidirectional: "<<Dis<<std::endl;
     std::cout<<"Took: "<<time.count()<<"s"<<std::endl;
     AStarBidirectionalSaving(myGraph, sourceNode, targetNode, "AStar_Bidirectional_explored");
+
+    start=std::chrono::high_resolution_clock::now();
+    Dis = AStarBidirectionalStopping(myGraph, sourceNode, targetNode);
+    end = std::chrono::high_resolution_clock::now();
+    time = end - start;
+    std::cout<<"Variant: "<<Dis<<std::endl;
+    std::cout<<"Took: "<<time.count()<<"s"<<std::endl;
 }
 
 

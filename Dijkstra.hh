@@ -144,6 +144,7 @@ double DijkstraRank(Graph myGraph, double sourceNode, double targetNode) {
 
     apq.insertNode(sourceNode - 1, 0, -1);
     dist[sourceNode - 1] = 0;
+    int rank = 0;
 
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
@@ -153,6 +154,7 @@ double DijkstraRank(Graph myGraph, double sourceNode, double targetNode) {
         double endEdge = myGraph.edgeStarts[currentNode];
 
         for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
+            rank++;
             double edge = myGraph.edges[edgeIndex] - 1;
             // Calculate the weight as the Euclidean distance between the nodes
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
@@ -161,6 +163,7 @@ double DijkstraRank(Graph myGraph, double sourceNode, double targetNode) {
                 dist[edge] = dist[currentNode] + weight;
                 // Break if we have reached our destination
                 if (edge == targetNode - 1) {
+                    return rank;
                     std::vector<double> path;
                     path.push_back(edge);
                     double prevNode = currentNode;
@@ -243,14 +246,13 @@ double DijkstraSearchSpace(Graph myGraph, double sourceNode, double targetNode) 
     visited.push_back(sourceNode);
     while (!apq.isEmpty()) {
         double currentNode = apq.popMin();
-
+        visited.push_back(currentNode);
 
         double startEdge = (currentNode > 0) ? myGraph.edgeStarts[currentNode - 1] + 1 : 0;
         double endEdge = myGraph.edgeStarts[currentNode];
 
         for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
             double edge = myGraph.edges[edgeIndex] - 1;
-            visited.push_back(edge);
             // Calculate the weight as the Euclidean distance between the nodes
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
             // Relax the edge if a shorter path is found

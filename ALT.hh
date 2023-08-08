@@ -67,7 +67,6 @@ double ALT(const Graph& myGraph, double& sourceNode, double& targetNode, const s
         for (double edgeIndex = startEdge; edgeIndex <= endEdge; edgeIndex++) {
             double edge = myGraph.edges[edgeIndex] - 1;
             double weight = distance(myGraph.nodes[currentNode], myGraph.nodes[edge]);
-
             if (dist[currentNode]+ weight < dist[edge]) {
                 dist[edge] = dist[currentNode] + weight;
 
@@ -153,7 +152,29 @@ std::vector<double> findUsefulLandmarks(Graph& myGraph, const double& sourceNode
     }
     return usefulLandmarks;
 }
+std::vector<std::vector<double>> findUsefulPotentials(Graph& myGraph, const double& sourceNode, const double& targetNode,
+                                        const std::vector<double>& landmarks, const std::vector<std::vector<double>>& potentials) {
+    std::vector<double> usefulLandmarks;
+    Node source = myGraph.nodes[sourceNode-1];
+    Node target = myGraph.nodes[targetNode-1];
+    Node vertex1;
+    Node vertex2;
+    calculateEndPoints(source, target, vertex1, vertex2);
+    for (int i = 0; i<landmarks.size();i++){
+        if (isInsideTriangle(source, vertex1, vertex2, myGraph.nodes[landmarks[i]-1])) {
+            usefulLandmarks.push_back(i);
+        }
 
+    }
+    if (usefulLandmarks.empty()){
+        return potentials;
+    }
+    std::vector<std::vector<double>> usefulPotentials;
+    for (int i:usefulLandmarks){
+        usefulPotentials.push_back(potentials[i]);
+    }
+    return usefulPotentials;
+}
 double ALTUseful(Graph& myGraph, double& sourceNode, double& targetNode, const std::vector<std::vector<double>>& potentials,
            std::vector<double>& landmarks) {
     std::vector<double> usefulLandmarks = findUsefulLandmarks(myGraph, sourceNode, targetNode, landmarks);

@@ -224,6 +224,9 @@ double BidirectionalDijkstraSearchSpace(Graph& myGraph, double& sourceNode, doub
         double backwardNode = apqBackward.popMin();
 
         visitedForward.insert(forwardNode);
+        visited.push_back(forwardNode);
+        visited.push_back(backwardNode);
+
 
         visitedBackward.insert(backwardNode);
 
@@ -247,7 +250,6 @@ double BidirectionalDijkstraSearchSpace(Graph& myGraph, double& sourceNode, doub
 
         for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
-            visited.push_back(forwardEdge);
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
@@ -267,7 +269,6 @@ double BidirectionalDijkstraSearchSpace(Graph& myGraph, double& sourceNode, doub
 
         for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
-            visited.push_back(backwardEdge);
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {

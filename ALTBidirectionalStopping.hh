@@ -21,12 +21,13 @@ double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double 
     forwardDist[sourceNode - 1] = 0;
     backwardDist[targetNode - 1] = 0;
 
-    double meetingNode = -1;
     double bestPath = INT_MAX;
 
     while (!forwardAPQ.isEmpty() && !backwardAPQ.isEmpty()) {
         // Perform a forward search step
         double forwardNode = forwardAPQ.popMin();
+        if(backwardDist[forwardNode] < INT_MAX){
+            return forwardDist[forwardNode]+backwardDist[forwardNode];}
 
         double forwardStartEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double forwardEndEdge = myGraph.edgeStarts[forwardNode];
@@ -44,14 +45,15 @@ double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double 
                     forwardAPQ.insertNode(forwardEdge, forwardF);
                 }
 
-                if(backwardDist[forwardEdge] < INT_MAX){
-                    return forwardDist[forwardEdge]+backwardDist[forwardEdge];}
+
 
             }
         }
 
         // Perform a backward search step
         double backwardNode = backwardAPQ.popMin();
+        if(forwardDist[backwardNode] < INT_MAX){
+            return forwardDist[backwardNode]+backwardDist[backwardNode];}
 
 
         double backwardStartEdge = (backwardNode > 0) ? myGraph.edgeStarts[backwardNode - 1] + 1 : 0;
@@ -68,8 +70,6 @@ double ALTBidirectionalStopping(const Graph& myGraph, double sourceNode, double 
                 } else {
                     backwardAPQ.insertNode(backwardEdge, backwardF);
                 }
-                if(forwardDist[backwardEdge] < INT_MAX){
-                   return forwardDist[backwardEdge]+backwardDist[backwardEdge];}
 
 
             }
@@ -102,7 +102,14 @@ double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, d
     while (!apqForward.isEmpty() && !apqBackward.isEmpty()) {
 
         double forwardNode = apqForward.popMin();
+        visited.push_back(forwardNode);
+
         double backwardNode = apqBackward.popMin();
+        visited.push_back(backwardNode);
+        if(distForward[backwardNode] < INT_MAX){
+            return visited.size();}
+        if(distBackward[forwardNode] < INT_MAX){
+            return visited.size();}
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -112,15 +119,13 @@ double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, d
 
         for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
-            visited.push_back(forwardEdge);
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
                 distForward[forwardEdge] = distForward[forwardNode] + forwardWeight;
 
                 double forwardF = distForward[forwardEdge]+ estimate(forwardEdge, targetNode-1, potentials);
-                if(distBackward[forwardEdge] < INT_MAX){
-                    return visited.size();}
+
 
 
                 if (apqForward.contains(forwardEdge)) {
@@ -133,15 +138,13 @@ double ALTBidirectionalStoppingSearchSpace(Graph& myGraph, double& sourceNode, d
 
         for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
-            visited.push_back(backwardEdge);
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
                 distBackward[backwardEdge] = distBackward[backwardNode] + backwardWeight;
 
                 double backwardF = distBackward[backwardEdge]+ estimate(backwardEdge, sourceNode-1, potentials);
-                if(distForward[backwardEdge] < INT_MAX){
-                    return visited.size();}
+
 
 
                 if (apqBackward.contains(backwardEdge)) {

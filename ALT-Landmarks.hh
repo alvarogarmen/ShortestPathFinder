@@ -16,7 +16,59 @@
 #include <queue>
 #include <unordered_set>
 #include <random>
+#include <map>
 
+std::vector<std::vector<double>> getTopKRows(const std::vector<std::vector<double>>& matrix, int k) {
+    // Calculate the mean of each row and store in a map
+    std::map<double, int, std::greater<double>> meanMap; // Using greater to sort in descending order
+
+    for (int i = 0; i < matrix.size(); ++i) {
+        const double mean = std::accumulate(matrix[i].begin(), matrix[i].end(), 0.0) / matrix[i].size();
+        meanMap[mean] = i;
+    }
+
+    // Extract the top k rows
+    std::vector<int> topRows;
+    for (const auto& entry : meanMap) {
+        topRows.push_back(entry.second);
+        if (topRows.size() == k) {
+            break;
+        }
+    }
+    std::vector<std::vector<double>> selectedPotentials;
+    for (int i:topRows){
+        selectedPotentials.push_back(matrix[i]);
+    }
+
+    return selectedPotentials;
+}
+
+std::vector<std::vector<double>> getClosestLandmarkPotentials(const std::vector<double>& landmarks, const std::vector<std::vector<double>> potentials,
+                                              const double referenceObj,
+                                   Graph& myGraph, int k) {
+    // Calculate distances and store in a map
+    std::map<double, int> distanceMap;
+
+    for (int index : landmarks) {
+        double dist = distance(myGraph.nodes[referenceObj-1], myGraph.nodes[index]);
+        distanceMap[dist] = index;
+    }
+
+    // Extract the top k closest indices
+    std::vector<int> closestIndices;
+    for (const auto& entry : distanceMap) {
+        closestIndices.push_back(entry.second);
+        if (closestIndices.size() == k) {
+            break;
+        }
+    }
+    std::vector<std::vector<double>> closePotentials;
+    for (int i:closestIndices){
+        closePotentials.push_back(potentials[i]);
+    }
+
+    return closePotentials;
+}
 double multiSourceDijkstra(Graph& myGraph, const std::vector<double>& sourceNodes) {
     // Get a priority queue
     APQ apq = APQ(myGraph.nodeCount);

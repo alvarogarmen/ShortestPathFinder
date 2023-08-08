@@ -38,6 +38,8 @@ void processInput(double sourceNode, double targetNode, std::string graph, int n
         points = loadPoints(graph.substr(13, 3)+"_"+std::to_string(numPoints));
         std::cout<<"Points loaded!"<<std::endl;
     }
+    callExperimentALTUseful(myGraph, points, graph);
+    //callRanks(myGraph, points, graph);
     callExperimentDijkstra(myGraph, points, graph);
     std::cout<<"Dijkstra Experiments successful!"<<std::endl;
     callExperimentAStar(myGraph, points, graph);

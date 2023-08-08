@@ -46,7 +46,7 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
                 if(distForward[forwardEdge]+distBackward[forwardEdge] < minPath){minPath=distForward[forwardEdge]+distBackward[forwardEdge];}
                 if (apqForward.contains(forwardEdge)) {
                     apqForward.decreaseKey(forwardEdge, forwardF);
-                } else {
+                } else if(forwardF<minPath){
                     apqForward.insertNode(forwardEdge, forwardF);
                 }
             }
@@ -65,10 +65,13 @@ double AStarBidirectional(Graph& myGraph, double& sourceNode, double& targetNode
 
                 if (apqBackward.contains(backwardEdge)) {
                     apqBackward.decreaseKey(backwardEdge, backwardF);
-                } else {
+                } else if(backwardH<minPath){
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
             }
+        }
+        if(apqForward.isEmpty()||apqBackward.isEmpty()){
+            return minPath;
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             return minPath;
@@ -152,6 +155,9 @@ double AStarBidirectionalSaving(Graph& myGraph, double& sourceNode, double& targ
                 }
             }
         }
+        if(apqBackward.isEmpty()||apqForward.isEmpty()){
+            break;
+        }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             break;
         }
@@ -192,6 +198,9 @@ double AStarBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double&
         double forwardNode = apqForward.popMin();
         double backwardNode = apqBackward.popMin();
 
+        visited.push_back(forwardNode);
+        visited.push_back(backwardNode);
+
 
         double startForwardEdge = (forwardNode > 0) ? myGraph.edgeStarts[forwardNode - 1] + 1 : 0;
         double endForwardEdge = myGraph.edgeStarts[forwardNode];
@@ -201,7 +210,6 @@ double AStarBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double&
 
         for (double forwardEdgeIndex = startForwardEdge; forwardEdgeIndex <= endForwardEdge; forwardEdgeIndex++) {
             double forwardEdge = myGraph.edges[forwardEdgeIndex] - 1;
-            visited.push_back(forwardEdge);
             double forwardWeight = distance(myGraph.nodes[forwardNode], myGraph.nodes[forwardEdge]);
 
             if (distForward[forwardNode] + forwardWeight < distForward[forwardEdge]) {
@@ -225,7 +233,6 @@ double AStarBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double&
 
         for (double backwardEdgeIndex = startBackwardEdge; backwardEdgeIndex <= endBackwardEdge; backwardEdgeIndex++) {
             double backwardEdge = myGraph.edges[backwardEdgeIndex] - 1;
-            visited.push_back(backwardEdge);
             double backwardWeight = distance(myGraph.nodes[backwardNode], myGraph.nodes[backwardEdge]);
 
             if (distBackward[backwardNode] + backwardWeight  < distBackward[backwardEdge] ) {
@@ -244,6 +251,9 @@ double AStarBidirectionalSearchSpace(Graph& myGraph, double& sourceNode, double&
                     apqBackward.insertNode(backwardEdge, backwardF);
                 }
             }
+        }
+        if(apqForward.isEmpty() || apqBackward.isEmpty()){
+            return visited.size();
         }
         if (apqBackward.getMin().second >= minPath || apqForward.getMin().second >= minPath){
             return visited.size();
